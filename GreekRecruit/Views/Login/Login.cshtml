@@ -1,14 +1,23 @@
 ﻿@{
 }
+
+@model GreekRecruit.Models.User
+
 <title>Login</title>
 <div class="text-center">
     <h1 class="display-4">Login</h1>
+    @if (TempData["FlashMessage"] != null)
+    {
+        <div class="alert alert-error">
+            @TempData["FlashMessage"]
+        </div>
+    }
     <form asp-controller="Login" asp-action="SubmitData" method="POST">
         <label for="username">Username</label>
-        <input type="text" id="username"/>
+        <input type="text" id="username" asp-for="username"/>
         <br /><br />
         <label for="password">Password</label>
-        <input type="password" id="password"/>
+        <input type="password" id="password" asp-for="password"/>
         <br /><br />
         <input type="submit" value="Submit">
     </form>

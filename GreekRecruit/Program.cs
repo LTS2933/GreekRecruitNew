@@ -1,7 +1,16 @@
+using GreekRecruit.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+var connectionString = builder.Configuration.GetConnectionString("Sql");
+
+builder.Services.AddDbContext<SqlDataContext>(options =>
+    options.UseSqlServer(connectionString));
+
 
 var app = builder.Build();
 
