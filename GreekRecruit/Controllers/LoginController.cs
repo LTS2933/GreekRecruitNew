@@ -32,6 +32,12 @@ namespace GreekRecruit.Controllers
                 TempData["FlashMessage"] = "Username does not exist!";
                 return View("Login");
             }
+            var pword = model.password;
+            bool correctUser = _context.Users.Any(u => u.username == uname && u.password == pword);
+            if (!correctUser) {
+                TempData["FlashMessage"] = "Incorrect Password!";
+                return View("Login");
+            }
 
             var claims = new List<Claim>
             {

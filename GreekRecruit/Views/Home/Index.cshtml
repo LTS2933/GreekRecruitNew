@@ -41,7 +41,21 @@
         @foreach (var pnm in Model)
         {
             <tr>
-                <td>@($"{pnm.pnm_fname} {pnm.pnm_lname}")</td>
+
+                <td>
+                    @if (pnm.pnm_profilepicture != null && pnm.pnm_profilepicture.Length > 0)
+                    {
+                        var base64String = Convert.ToBase64String(pnm.pnm_profilepicture);
+                        var imageSrc = $"data:image/jpeg;base64,{base64String}";
+
+                        <img src="@imageSrc" alt="Profile Picture" class="profile-img">
+                    }
+                    else
+                    {
+                        <img src="/images/default-avatar.jpg" alt="None" class="profile-img">
+                    }
+                    <a asp-controller="PNM" asp-action="Index">@($"{pnm.pnm_fname} {pnm.pnm_lname}")</a>
+                    </td>
                
                 <td>@pnm.pnm_schoolyear</td>
               
