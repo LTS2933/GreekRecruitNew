@@ -53,7 +53,8 @@ namespace GreekRecruit.Controllers
                 _context.Add<User>(model);
                 _context.SaveChanges();
 
-                return View("~/Views/Home/Index.cshtml");
+                TempData["FlashMessage"] = "You can now log in with your username and password!";
+                return View("~/Views/Login/Login.cshtml");
             }
             else
             {

@@ -1,8 +1,12 @@
 ﻿using GreekRecruit.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace GreekRecruit.Controllers
 {
+    //[Authorize(AuthenticationSchemes = "MyCookieAuth")]
     public class LoginController : Controller
     {
 
@@ -19,7 +23,7 @@ namespace GreekRecruit.Controllers
         }
 
         [HttpPost]
-            public IActionResult SubmitData(User model)
+            public async Task<IActionResult> SubmitDataAsync(User model)
         {
             var uname = model.username;
             bool exists = _context.Users.Any(u => u.username == uname);
@@ -28,7 +32,19 @@ namespace GreekRecruit.Controllers
                 TempData["FlashMessage"] = "Username does not exist!";
                 return View("Login");
             }
-            return View("~/Views/Home/Index.cshtml");
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, uname)
+            };
+
+            var identity = new ClaimsIdentity(claims, "MyCookieAuth");
+            var principal = new ClaimsPrincipal(identity);
+
+            await HttpContext.SignInAsync("MyCookieAuth", principal);
+
+            return RedirectToAction("Index", "Home");
+
 
         }
     }

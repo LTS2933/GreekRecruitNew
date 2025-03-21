@@ -2,6 +2,56 @@
 @{
     ViewData["Title"] = "Home";
 }
-<h1>Home</h1>
+@model List<GreekRecruit.Models.PNM>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<h1>All PNMs</h1>
+
+<nav class="navbar navbar-light bg-light justify-content-end p-3">
+    <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle rounded-circle p-2"
+                type="button"
+                id="userMenuButton"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
+            L
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
+            <li><a asp-controller="Profile" asp-action="Index" class="dropdown-item">Profile</a></li>
+            <li><a class="dropdown-item" href="#">Settings</a></li>
+            <li><a asp-action="Logout" class="btn btn-primary">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Year</th>
+            <th>GPA</th>
+            <th>Major</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var pnm in Model)
+        {
+            <tr>
+                <td>@($"{pnm.pnm_fname} {pnm.pnm_lname}")</td>
+               
+                <td>@pnm.pnm_schoolyear</td>
+              
+                <td>@pnm.pnm_gpa</td>
+              
+                <td>@pnm.pnm_major</td>
+        </tr>
+        }
+    </tbody>
+</table>
+<br />
 
 

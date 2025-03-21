@@ -13,8 +13,19 @@ builder.Services.AddDbContext<SqlDataContext>(options =>
     options.UseSqlServer(connectionString);
 });
 
+builder.Services.AddAuthentication("MyCookieAuth")
+    .AddCookie("MyCookieAuth", options =>
+    {
+        options.LoginPath = "/Login/Login";
+        options.AccessDeniedPath = "/Login/AccessDenied";
+    });
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+app.UseAuthentication(); 
+app.UseAuthorization();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
