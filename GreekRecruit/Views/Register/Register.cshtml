@@ -8,6 +8,14 @@
 <title>Register</title>
 
 <h1>Register for an Account</h1>
+<br />
+@if (TempData["FlashMessage"] != null)
+{
+    <div class="alert alert-error">
+        @TempData["FlashMessage"]
+    </div>
+}
+<br />
 
 <form asp-controller="Register" asp-action="SubmitRegister" method="POST">
     <label for="username">Username</label>
