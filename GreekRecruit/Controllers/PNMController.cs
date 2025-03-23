@@ -28,6 +28,7 @@ namespace GreekRecruit.Controllers
                 .Where(c => c.pnm_id == id)
                 .OrderByDescending(c => c.comment_dt)
                 .ToList();
+            if (comments == null) return NotFound();
 
             return View((pnm, comments));
         }
@@ -38,9 +39,10 @@ namespace GreekRecruit.Controllers
         {
             DateTime comment_dt = DateTime.Now;
 
-            string? comment_text = comment.comment_text;
+            string comment_text = comment.comment_text;
             comment.comment_dt = comment_dt;
             comment.pnm_id = pnm_id;
+            comment.comment_author = User.Identity.Name;
 
             _context.Add<Comment>(comment);
             _context.SaveChanges();
