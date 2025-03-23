@@ -1,0 +1,87 @@
+﻿@model (GreekRecruit.Models.PNM PNM, List<GreekRecruit.Models.Comment> Comments)
+
+@{
+    ViewData["Title"] = "PNM Profile";
+    var pnm = Model.PNM;
+    var comments = Model.Comments;
+
+}
+
+<h2>@pnm.pnm_fname @pnm.pnm_lname</h2>
+
+<div>
+    <dl>
+        <dt>Email</dt>
+        <dd>@pnm.pnm_email</dd>
+
+        <dt>Phone</dt>
+        <dd>@pnm.pnm_phone</dd>
+
+        <dt>GPA</dt>
+        <dd>@pnm.pnm_gpa</dd>
+
+        <dt>Major</dt>
+        <dd>@pnm.pnm_major</dd>
+
+        <dt>School Year</dt>
+        <dd>@pnm.pnm_schoolyear</dd>
+
+        <dt>Instagram</dt>
+        <dd>
+            @if (!string.IsNullOrEmpty(pnm.pnm_instagramhandle))
+            {
+                <a href="https://instagram.com/@pnm.pnm_instagramhandle" target="_blank">@("@" + pnm.pnm_instagramhandle)</a>
+            }
+            else
+            {
+                <span>No handle provided</span>
+            }
+        </dd>
+
+        <dt>Profile Picture</dt>
+        <dd>
+            @if (pnm.pnm_profilepicture != null && pnm.pnm_profilepicture.Length > 0)
+            {
+                var base64Image = "data:image/jpeg;base64," + Convert.ToBase64String(pnm.pnm_profilepicture);
+                <img src="@base64Image" alt="Profile Picture" style="max-height:200px;" />
+            }
+            else
+            {
+                <img src="/images/default_avatar.jpg" style="width:50px;height:50px;" alt="None" class="profile-img" />
+            }
+        </dd>
+    </dl>
+</div>
+
+<hr />
+
+<h3>Comments</h3>
+
+@if (comments.Any())
+{
+    <ul>
+        @foreach (var comment in comments)
+        {
+            <li>
+                <strong>@comment.comment_dt.ToShortDateString() @comment.comment_dt.ToShortTimeString()</strong>:<br />
+                @comment.comment_text
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>No comments yet. Be the first!</p>
+}
+
+<hr />
+
+<h3>Leave a Comment</h3>
+
+<form asp-action="SubmitComment" asp-controller="PNM" asp-route-pnm_id="@pnm.pnm_id" method="post">
+    <div class="form-group">
+        <textarea name="comment_text" class="form-control" rows="4" required></textarea>
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
