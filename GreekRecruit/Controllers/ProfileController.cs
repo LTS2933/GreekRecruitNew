@@ -22,7 +22,7 @@ namespace GreekRecruit.Controllers
         }
         public IActionResult Index()
         {
-            var username = User.Identity.Name;
+            var username = User.Identity?.Name;
             var user = _context.Users.FirstOrDefault(u => u.username == username);
 
             if (user == null)
@@ -32,5 +32,21 @@ namespace GreekRecruit.Controllers
 
             return View(user);
         }
+
+        public IActionResult AddData()
+        {
+            var username = User.Identity?.Name;
+            var user = _context.Users.FirstOrDefault(u => u.username == username);
+            if (user?.role == "Admin")
+            {
+                return View();
+                //Need to work on view, AddData.cshtml under Profile folder
+            }
+            else
+            {
+                return Forbid();
+            }
+        }
+
     }
 }

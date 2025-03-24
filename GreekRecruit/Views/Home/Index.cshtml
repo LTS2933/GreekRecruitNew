@@ -1,6 +1,7 @@
 ﻿
 @{
     ViewData["Title"] = "Home";
+
 }
 @model List<GreekRecruit.Models.PNM>
 
@@ -21,7 +22,15 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
             <li><a asp-controller="Profile" asp-action="Index" class="dropdown-item">Profile</a></li>
-            <!--<li><a asp-controller="Profile" asp-action="Index" class="dropdown-item">Security</a></li>-->
+            @{
+                var username = User.Identity.Name;
+                var context = Context.RequestServices.GetService(typeof(SqlDataContext)) as SqlDataContext;
+                var user = context?.Users.FirstOrDefault(u => u.username == username);
+
+                if (user?.role == "Admin"){
+                <li><a asp-controller="Profile" asp-action="AddUsers" class="dropdown-item">Add Users</a></li>
+                }
+             }
             <li><a asp-action="Logout" class="btn btn-primary">Logout</a></li>
         </ul>
     </div>

@@ -14,5 +14,7 @@ namespace GreekRecruit.Models
         [NotMapped]
         public String confirmPassword { get; set; }
         public String? email { get; set; }
+
+        public String role { get; set; } = "User";
     }
 }

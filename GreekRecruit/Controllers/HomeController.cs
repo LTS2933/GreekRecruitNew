@@ -24,10 +24,6 @@ public class HomeController : Controller
         var pnms = _context.PNMs.ToList();
         return View(pnms);
     }
-    public String Welcome(String name, int numTimes=2)
-    {
-        return HtmlEncoder.Default.Encode($"Hello {name}, NumTimes is: {numTimes}");
-    }
 
     [Authorize]
     public async Task<IActionResult> Logout()
