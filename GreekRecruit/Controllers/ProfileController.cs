@@ -49,41 +49,80 @@ namespace GreekRecruit.Controllers
         [HttpPost]
         public IActionResult AddUserData(string email)
         {
-            try
+            if (_context.Users.Any(u => u.email == email))
             {
-                var emailSettings = _configuration.GetSection("EmailSettings");
-                var smtpServer = emailSettings["SmtpServer"];
-                var port = int.Parse(emailSettings["Port"]);
-                var username = emailSettings["Username"];
-                var password = emailSettings["Password"];
-
-                var mail = new MailMessage();
-                mail.From = new MailAddress(username);
-                mail.To.Add(email);
-
-                User user = new User();
-                int ampersand_index = email.IndexOf("@");
-                user.username = email.Substring(0, ampersand_index);
-
-                mail.Subject = "Join GreekRecruit!";
-                mail.Body = "You've been invited to join GreekRecruit by " + User.Identity.Name;
-
-                var smtpClient = new SmtpClient(smtpServer)
+                TempData["ErrorMessage"] = $"Email {email} already exists!";
+                return RedirectToAction("AddUsers");
+            }
+            else
+            {
+                try
                 {
-                    Port = port,
-                    Credentials = new NetworkCredential(username, password),
-                    EnableSsl = true,
-                };
+                    var emailSettings = _configuration.GetSection("EmailSettings");
+                    var smtpServer = emailSettings["SmtpServer"];
+                    var port = int.Parse(emailSettings["Port"]);
+                    var username = emailSettings["Username"];
+                    var password = emailSettings["Password"];
 
-                smtpClient.Send(mail);
-                TempData["SuccessMessage"] = $"Email sent to {email}";
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = $"Error sending email: {ex.Message}";
-            }
+                    var mail = new MailMessage();
+                    mail.From = new MailAddress(username);
+                    mail.To.Add(email);
 
-            return RedirectToAction("AddUsers");
+
+                    int ampersand_index = email.IndexOf("@");
+                    if (ampersand_index > 0)
+                    {
+                        User user = new User();
+                        user.username = email.Substring(0, ampersand_index);
+                        user.email = email;
+                        user.role = "User";
+                        user.password = GenerateRandomPassword();
+
+                        _context.Add<User>(user);
+                        _context.SaveChanges();
+
+                        mail.Subject = "Join GreekRecruit!";
+                        mail.Body = $"You've been invited to join GreekRecruit by {User.Identity.Name}.\nYou can now log in with this email, username: {user.username}, password: {user.password}";
+
+                        var smtpClient = new SmtpClient(smtpServer)
+                        {
+                            Port = port,
+                            Credentials = new NetworkCredential(username, password),
+                            EnableSsl = true,
+                        };
+
+                        smtpClient.Send(mail);
+                        TempData["SuccessMessage"] = $"Email sent to {email}";
+                    }
+                    else
+                    {
+                        TempData["ErrorMessage"] = "Invalid email address! Please input a valid email address.";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    TempData["ErrorMessage"] = $"Error sending email: {ex.Message}";
+                }
+
+                return RedirectToAction("AddUsers");
+            }
         }
+        private string GenerateRandomPassword()
+        {
+            const string alphanumerics = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            const string specialChars = "!@#$%^&*()-_=+<>?";
+
+            var random = new Random();
+            var passwordChars = new char[8];
+
+            for (int i = 0; i < 6; i++)
+                passwordChars[i] = alphanumerics[random.Next(alphanumerics.Length)];
+
+            for (int i = 6; i < 8; i++)
+                passwordChars[i] = specialChars[random.Next(specialChars.Length)];
+
+            return new string(passwordChars.OrderBy(c => Guid.NewGuid()).ToArray());
+        }
+
     }
 }
