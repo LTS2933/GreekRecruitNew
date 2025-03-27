@@ -60,6 +60,11 @@ namespace GreekRecruit.Controllers
                 var mail = new MailMessage();
                 mail.From = new MailAddress(username);
                 mail.To.Add(email);
+
+                User user = new User();
+                int ampersand_index = email.IndexOf("@");
+                user.username = email.Substring(0, ampersand_index);
+
                 mail.Subject = "Join GreekRecruit!";
                 mail.Body = "You've been invited to join GreekRecruit by " + User.Identity.Name;
 
