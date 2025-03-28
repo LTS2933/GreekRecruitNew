@@ -25,17 +25,25 @@ namespace GreekRecruit.Controllers
         [HttpPost]
             public async Task<IActionResult> SubmitDataAsync(User model)
         {
-            var uname = model.username;
-            bool exists = _context.Users.Any(u => u.username == uname);
-            if (!exists)
+            var email = model.email;
+            bool emailExists = _context.Users.Any(u => u.email == email);
+            if (!emailExists)
             {
-                TempData["FlashMessage"] = "Username does not exist!";
+                TempData["FlashMessage"] = "Email does not exist within this organization's users!";
+                return View("Login");
+            }
+
+            var uname = model.username;
+            bool usernameExists = _context.Users.Any(u => u.username == uname);
+            if (!usernameExists)
+            {
+                TempData["FlashMessage"] = "Username does not exist within this organization's users!";
                 return View("Login");
             }
             var pword = model.password;
-            bool correctUser = _context.Users.Any(u => u.username == uname && u.password == pword);
+            bool correctUser = _context.Users.Any(u => u.username == uname && u.password == pword && u.email == email);
             if (!correctUser) {
-                TempData["FlashMessage"] = "Incorrect Password!";
+                TempData["FlashMessage"] = "Incorrect Email or Password for this account!";
                 return View("Login");
             }
 

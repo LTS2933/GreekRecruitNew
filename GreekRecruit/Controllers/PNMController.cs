@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using GreekRecruit.Models;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 
 namespace GreekRecruit.Controllers
 {
@@ -48,6 +49,13 @@ namespace GreekRecruit.Controllers
             _context.SaveChanges();
 
             return RedirectToAction("Index", new { id = pnm_id });
+        }
+
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync("MyCookieAuth");
+            return RedirectToAction("Login", "Login");
         }
     }
 }

@@ -15,6 +15,9 @@
     }
     <br />
     <form asp-controller="Login" asp-action="SubmitData" method="POST">
+        <label for="email">Email</label>
+        <input type="text" id="email" asp-for="email" />
+        <br /><br />
         <label for="username">Username</label>
         <input type="text" id="username" asp-for="username"/>
         <br /><br />
@@ -24,7 +27,7 @@
         <input type="submit" value="Submit">
     </form>
     <div>
-        <p>No account yet?</p>
-        <a asp-controller="Register" asp-action="Register" class="btn btn-primary">Register</a>
+        <!--<p>No account yet?</p>-->
+        <!--<a asp-controller="Register" asp-action="Register" class="btn btn-primary">Register</a>-->
     </div>
 </div>

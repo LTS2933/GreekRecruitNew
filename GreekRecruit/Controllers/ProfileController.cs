@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Net;
 using System.Net.Mail;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Authentication;
 
 namespace GreekRecruit.Controllers
 {
@@ -46,6 +47,13 @@ namespace GreekRecruit.Controllers
             }
         }
 
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync("MyCookieAuth");
+            return RedirectToAction("Login", "Login");
+        }
+
         [HttpPost]
         public IActionResult AddUserData(string email)
         {
@@ -82,7 +90,8 @@ namespace GreekRecruit.Controllers
                         _context.SaveChanges();
 
                         mail.Subject = "Join GreekRecruit!";
-                        mail.Body = $"You've been invited to join GreekRecruit by {User.Identity.Name}.\nYou can now log in with this email, username: {user.username}, password: {user.password}";
+                        mail.Body = $"You've been invited to join GreekRecruit by your admin, {User.Identity.Name}.\nYou can now log in using this email.\nUsername: {user.username}\nPassword: {user.password}" +
+                        "\nIf you would like to rest your password, you can do so by clicking the Settings button in your profile dropdown.";
 
                         var smtpClient = new SmtpClient(smtpServer)
                         {
