@@ -48,6 +48,8 @@ namespace GreekRecruit.Controllers
             _context.Add<Comment>(comment);
             _context.SaveChanges();
 
+            TempData["FlashMessage"] = "Changes Saved.";
+
             return RedirectToAction("Index", new { id = pnm_id });
         }
 
@@ -78,6 +80,8 @@ namespace GreekRecruit.Controllers
 
             pnm.pnm_status = pnm_status;
             await _context.SaveChangesAsync();
+
+            TempData["FlashMessage"] = "Changes saved.";
 
             return RedirectToAction("Index", new { id = pnm_id });
         }
