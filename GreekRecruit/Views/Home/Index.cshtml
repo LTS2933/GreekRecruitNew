@@ -10,7 +10,13 @@
 
 
 
-<nav class="navbar navbar-light bg-light justify-content-end p-3">
+<nav class="navbar navbar-light bg-light p-3 d-flex justify-content-between">
+    <a asp-controller="Home" asp-action="Index" class="navbar-brand d-flex align-items-center">
+        <img src="/images/greekrecruit_logo.jpg" alt="Home" width="40" height="40" class="d-inline-block align-top">
+        <span class="ms-2">Home</span>
+    </a>
+
+
     <div class="dropdown">
         <button class="btn btn-secondary dropdown-toggle rounded-circle p-2"
                 type="button"
@@ -26,14 +32,16 @@
                 var context = Context.RequestServices.GetService(typeof(SqlDataContext)) as SqlDataContext;
                 var user = context?.Users.FirstOrDefault(u => u.username == username);
 
-                if (user?.role == "Admin"){
-                <li><a asp-controller="Profile" asp-action="AddUsers" class="dropdown-item">Add Users</a></li>
+                if (user?.role == "Admin")
+                {
+                    <li><a asp-controller="Profile" asp-action="AddUsers" class="dropdown-item">Add Users</a></li>
                 }
-             }
+            }
             <li><a asp-action="Logout" class="btn btn-primary">Logout</a></li>
         </ul>
     </div>
 </nav>
+
 
 <h1>All PNMs</h1>
 

@@ -57,5 +57,31 @@ namespace GreekRecruit.Controllers
             await HttpContext.SignOutAsync("MyCookieAuth");
             return RedirectToAction("Login", "Login");
         }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> Edit(IFormCollection form)
+        {
+            string? pnm_status = form["pnm_status"];
+            var pnm_id_string = form["pnm_id"];
+
+            if (!int.TryParse(pnm_id_string, out int pnm_id))
+            {
+                return BadRequest("Invalid PNM ID.");
+            }
+
+            var pnm = await _context.PNMs.FindAsync(pnm_id);
+            if (pnm == null)
+            {
+                return NotFound();
+            }
+
+            pnm.pnm_status = pnm_status;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", new { id = pnm_id });
+        }
+
+
     }
 }
