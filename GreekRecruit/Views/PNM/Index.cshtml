@@ -39,26 +39,28 @@
         <span class="ms-2">Home</span>
     </a>
 
+    <div class="d-flex align-items-center gap-2">
+        <a asp-controller="AddPNM" asp-action="Index" class="btn btn-danger">+ Add PNM</a>
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle rounded-circle p-2"
+            type="button"
+            id="userMenuButton"
+            data-bs-toggle="dropdown"
+            aria-expanded="false">
+                L
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
+                <li><a asp-controller="Profile" asp-action="Index" class="dropdown-item">Profile</a></li>
+                @{
 
-    <div class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle rounded-circle p-2"
-        type="button"
-        id="userMenuButton"
-        data-bs-toggle="dropdown"
-        aria-expanded="false">
-            L
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
-            <li><a asp-controller="Profile" asp-action="Index" class="dropdown-item">Profile</a></li>
-            @{
-
-                if (isAdmin == true)
-                {
-                    <li><a asp-controller="Profile" asp-action="AddUsers" class="dropdown-item">Add Users</a></li>
+                    if (isAdmin == true)
+                    {
+                        <li><a asp-controller="Profile" asp-action="AddUsers" class="dropdown-item">Add Users</a></li>
+                    }
                 }
-            }
-            <li><a asp-action="Logout" class="btn btn-primary">Logout</a></li>
-        </ul>
+                <li><a asp-action="Logout" class="btn btn-primary">Logout</a></li>
+            </ul>
+        </div>
     </div>
 </nav>
 
