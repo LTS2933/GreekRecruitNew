@@ -78,7 +78,9 @@
 
     @if (TempData["Message"] != null)
     {
-        <div class="alert alert-success mt-3">@TempData["Message"]</div>
+        <script>
+            alert('@TempData["Message"]');
+        </script>
     }
 
     <div class="mt-4">

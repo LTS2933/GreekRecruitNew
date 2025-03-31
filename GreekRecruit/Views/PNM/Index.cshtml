@@ -97,16 +97,31 @@
 
         <dt>Profile Picture</dt>
         <dd>
-            @if (pnm.pnm_profilepicture != null && pnm.pnm_profilepicture.Length > 0)
-            {
-                var base64Image = "data:image/jpeg;base64," + Convert.ToBase64String(pnm.pnm_profilepicture);
-                <img src="@base64Image" alt="Profile Picture" style="max-height:200px;" />
-            }
-            else
-            {
-                <img src="/images/default_avatar.jpg" style="width:50px;height:50px;" alt="None" class="profile-img" />
-            }
+            <form asp-action="UpdateProfilePicture" asp-controller="PNM" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="pnm_id" value="@pnm.pnm_id" />
+
+                @if (pnm.pnm_profilepicture != null && pnm.pnm_profilepicture.Length > 0)
+                {
+                    var base64Image = "data:image/jpeg;base64," + Convert.ToBase64String(pnm.pnm_profilepicture);
+                    <img src="@base64Image" alt="Profile Picture" style="max-height:200px;" />
+                }
+                else
+                {
+                    <img src="/images/default_avatar.jpg" style="width:50px;height:50px;" alt="None" class="profile-img" />
+                }
+
+                @{ if (isAdmin == true) {
+                    <div style="margin-top: 10px;">
+                        <label for="newProfilePicture">Change Profile Picture:</label>
+                        <input type="file" id="newProfilePicture" name="newProfilePicture" accept="image/*" />
+                    </div>
+
+                    <button type="submit" style="margin-top: 10px;">Upload</button>
+                }
+                }
+            </form>
         </dd>
+
 
 
         @{

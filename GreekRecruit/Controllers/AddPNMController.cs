@@ -1,33 +1,55 @@
 ﻿using GreekRecruit.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace GreekRecruit.Controllers
 {
     public class AddPNMController : Controller
     {
+        private readonly SqlDataContext _context;
+
+        public AddPNMController(SqlDataContext context)
+        {
+            _context = context;
+        }
         public IActionResult Index()
         {
             return View();
         }
-        public IActionResult SubmitPNM(PNM pnm)
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> SubmitPNM(PNM pnm, IFormFile uploadedProfilePicture)
         {
-            var fname = pnm.pnm_fname;
-            var lname = pnm.pnm_lname;
-            if (fname == null || lname == null)
+            if (string.IsNullOrWhiteSpace(pnm.pnm_fname) || string.IsNullOrWhiteSpace(pnm.pnm_lname))
             {
                 ViewData["FlashMessage"] = "PNM's name cannot be empty!";
                 return View("Index");
             }
 
-            var email = pnm.pnm_email;
-            var phone = pnm.pnm_phone;
-            var gpa = pnm.pnm_gpa;
-            var major = pnm.pnm_major;
-            var schoolyear = pnm.pnm_schoolyear;
+            try
+            {
+                if (uploadedProfilePicture != null && uploadedProfilePicture.Length > 0)
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        await uploadedProfilePicture.CopyToAsync(ms);
+                        pnm.pnm_profilepicture = ms.ToArray();
+                    }
+                }
 
-            //NEED TO FINISH THIS
-            return View("Index");
+                _context.PNMs.Add(pnm);
+                await _context.SaveChangesAsync();
 
+                ViewData["FlashMessage"] = "PNM submitted successfully!";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                ViewData["FlashMessage"] = "Something went wrong while submitting the form. Please try again.";
+            }
+
+            return RedirectToAction("Index", "Home");
         }
     }
 }

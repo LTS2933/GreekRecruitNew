@@ -48,14 +48,18 @@
 
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success mt-3">@TempData["SuccessMessage"]</div>
+        <script>
+            alert('@TempData["SuccessMessage"]');
+        </script>
+
     }
 
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="alert alert-danger mt-3">@TempData["ErrorMessage"]</div>
+        <script>
+            alert('@TempData["ErrorMessage"]');
+        </script>
     }
-
 
 
     <form method="post" asp-controller="Profile" asp-action="AddUserData">

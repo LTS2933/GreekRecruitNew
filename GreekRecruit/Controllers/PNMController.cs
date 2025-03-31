@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using GreekRecruit.Models;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.IdentityModel.Tokens;
 
 namespace GreekRecruit.Controllers
 {
@@ -20,6 +21,7 @@ namespace GreekRecruit.Controllers
             _context = context;
         }
 
+        [Authorize]
         public IActionResult Index(int id)
         {
             var pnm = _context.PNMs.FirstOrDefault(p => p.pnm_id == id);
@@ -34,24 +36,39 @@ namespace GreekRecruit.Controllers
             return View((pnm, comments));
         }
 
-
+        [Authorize]
         [HttpPost("PNM/SubmitComment/{pnm_id}")]
-        public IActionResult SubmitComment(Comment comment, int pnm_id)
+        public async Task<IActionResult> SubmitComment(Comment comment, int pnm_id)
         {
-            DateTime comment_dt = DateTime.Now;
+            try
+            {
+                comment.comment_dt = DateTime.Now;
+                comment.pnm_id = pnm_id;
+                comment.comment_author = User.Identity?.Name ?? "Unknown";
 
-            string comment_text = comment.comment_text;
-            comment.comment_dt = comment_dt;
-            comment.pnm_id = pnm_id;
-            comment.comment_author = User.Identity.Name;
+                if (string.IsNullOrEmpty(comment.comment_text))
+                {
+                    TempData["FlashMessage"] = "Comment cannot be empty. Please try again.";
 
-            _context.Add<Comment>(comment);
-            _context.SaveChanges();
+                    return RedirectToAction("Index", new { id = pnm_id });
+                }
 
-            TempData["FlashMessage"] = "Changes Saved.";
+                _context.Comments.Add(comment);
+                await _context.SaveChangesAsync();
 
-            return RedirectToAction("Index", new { id = pnm_id });
+                TempData["FlashMessage"] = "Changes Saved.";
+                return RedirectToAction("Index", new { id = pnm_id });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+
+                TempData["FlashMessage"] = "Something went wrong while submitting the comment. Please try again.";
+
+                return RedirectToAction("Index", new { id = pnm_id });
+            }
         }
+
 
         [Authorize]
         public async Task<IActionResult> Logout()
