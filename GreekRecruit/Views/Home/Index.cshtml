@@ -70,11 +70,11 @@
                         var base64String = Convert.ToBase64String(pnm.pnm_profilepicture);
                         var imageSrc = $"data:image/jpeg;base64,{base64String}";
 
-                        <img src="@imageSrc" alt="Profile Picture" class="profile-img">
+                        <img src="@imageSrc" alt="Profile Picture" class="profile-img" style="width:80px;height:80px;">
                     }
                     else
                     {
-                        <img src="/images/default_avatar.jpg" style="width:50px;height:50px;" alt="None" class="profile-img" />
+                        <img src="/images/default_avatar.jpg" style="width:80px;height:80px;" alt="None" class="profile-img" />
                     }
                     <a asp-controller="PNM" asp-action="Index" asp-route-id="@pnm.pnm_id">@($"{pnm.pnm_fname} {pnm.pnm_lname}")</a>
                     </td>

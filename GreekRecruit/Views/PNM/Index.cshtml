@@ -53,7 +53,7 @@
                 <li><a asp-controller="Profile" asp-action="Index" class="dropdown-item">Profile</a></li>
                 @{
 
-                    if (isAdmin == true)
+                    if (isAdmin)
                     {
                         <li><a asp-controller="Profile" asp-action="AddUsers" class="dropdown-item">Add Users</a></li>
                     }
@@ -68,20 +68,47 @@
 
 <div>
     <dl>
-        <dt>Email</dt>
-        <dd>@pnm.pnm_email</dd>
+        @if (isAdmin)
+        {
+            <form asp-action="EditInfo" method="post">
+                <input type="hidden" name="pnm_id" value="@pnm.pnm_id" />
 
-        <dt>Phone</dt>
-        <dd>@pnm.pnm_phone</dd>
+                    <dt>Email</dt>
+                    <dd><input type="email" name="pnm_email" value="@pnm.pnm_email" class="form-control" /></dd>
 
-        <dt>GPA</dt>
-        <dd>@pnm.pnm_gpa</dd>
+                    <dt>Phone</dt>
+                    <dd><input type="text" name="pnm_phone" value="@pnm.pnm_phone" class="form-control" /></dd>
 
-        <dt>Major</dt>
-        <dd>@pnm.pnm_major</dd>
+                    <dt>GPA</dt>
+                    <dd><input type="text" name="pnm_gpa" value="@pnm.pnm_gpa" class="form-control" /></dd>
 
-        <dt>School Year</dt>
-        <dd>@pnm.pnm_schoolyear</dd>
+                    <dt>Major</dt>
+                    <dd><input type="text" name="pnm_major" value="@pnm.pnm_major" class="form-control" /></dd>
+
+                    <dt>School Year</dt>
+                    <dd><input type="text" name="pnm_schoolyear" value="@pnm.pnm_schoolyear" class="form-control" /></dd>
+
+                <button type="submit" class="btn btn-success mt-2">Save Info</button>
+            </form>
+        }
+        else
+        {
+            <dt>Email</dt>
+            <dd>@pnm.pnm_email</dd>
+
+            <dt>Phone</dt>
+            <dd>@pnm.pnm_phone</dd>
+
+            <dt>GPA</dt>
+            <dd>@pnm.pnm_gpa</dd>
+
+            <dt>Major</dt>
+            <dd>@pnm.pnm_major</dd>
+
+            <dt>School Year</dt>
+            <dd>@pnm.pnm_schoolyear</dd>
+        }
+
 
         <dt>Instagram</dt>
         <dd>
@@ -97,7 +124,7 @@
 
         <dt>Profile Picture</dt>
         <dd>
-            <form asp-action="UpdateProfilePicture" asp-controller="PNM" method="post" enctype="multipart/form-data">
+            <form asp-action="UpdateProfilePicture" method="post" enctype="multipart/form-data">
                 <input type="hidden" name="pnm_id" value="@pnm.pnm_id" />
 
                 @if (pnm.pnm_profilepicture != null && pnm.pnm_profilepicture.Length > 0)
@@ -110,7 +137,7 @@
                     <img src="/images/default_avatar.jpg" style="width:50px;height:50px;" alt="None" class="profile-img" />
                 }
 
-                @{ if (isAdmin == true) {
+                @{ if (isAdmin) {
                     <div style="margin-top: 10px;">
                         <label for="newProfilePicture">Change Profile Picture:</label>
                         <input type="file" id="newProfilePicture" name="newProfilePicture" accept="image/*" />
@@ -126,12 +153,10 @@
 
         @{
             var currentStatus = string.IsNullOrEmpty(pnm.pnm_status) ? "Pending" : pnm.pnm_status;
-            if (isAdmin == true)
+            if (isAdmin)
             {
-                <form asp-action="Edit" method="post">
+                <form asp-action="EditStatus" method="post">
                     <input type="hidden" name="pnm_id" value="@pnm.pnm_id" />
-
-
 
                     <label for="pnm_status">Status</label>
                     <select name="pnm_status" class="form-select" id="pnm_status">

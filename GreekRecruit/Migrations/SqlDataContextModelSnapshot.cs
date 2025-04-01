@@ -49,7 +49,7 @@ namespace GreekRecruit.Migrations
 
                     b.HasKey("comment_id");
 
-                    b.ToTable("Comments");
+                    b.ToTable("Comments", (string)null);
                 });
 
             modelBuilder.Entity("GreekRecruit.Models.PNM", b =>
@@ -97,7 +97,7 @@ namespace GreekRecruit.Migrations
 
                     b.HasKey("pnm_id");
 
-                    b.ToTable("PNMs");
+                    b.ToTable("PNMs", (string)null);
                 });
 
             modelBuilder.Entity("GreekRecruit.Models.User", b =>
@@ -124,7 +124,7 @@ namespace GreekRecruit.Migrations
 
                     b.HasKey("user_id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 #pragma warning restore 612, 618
         }
