@@ -21,9 +21,22 @@ public class HomeController : Controller
     [Authorize]
     public IActionResult Index()
     {
-        var pnms = _context.PNMs.ToList();
+        var username = User.Identity?.Name;
+
+        var user = _context.Users.FirstOrDefault(u => u.username == username);
+
+        if (user == null)
+        {
+            return Unauthorized(); 
+        }
+
+        var pnms = _context.PNMs
+                          .Where(p => p.organization_id == user.organization_id)
+                          .ToList();
+
         return View(pnms);
     }
+
 
     [Authorize]
     public async Task<IActionResult> Logout()

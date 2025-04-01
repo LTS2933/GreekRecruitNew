@@ -6,6 +6,8 @@ namespace GreekRecruit.Models
     {
         [Key]
         public int pnm_id { get; set; }
+
+        public int organization_id { get; set; }
         public String pnm_fname { get; set; }
         public String pnm_lname { get; set; }
         public String? pnm_email { get; set; }
@@ -21,6 +23,7 @@ namespace GreekRecruit.Models
         public String? pnm_comments { get; set; }
 
         public String? pnm_status { get; set; }
+
 
     }
 }

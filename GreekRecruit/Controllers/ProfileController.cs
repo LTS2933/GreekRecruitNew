@@ -86,6 +86,17 @@ namespace GreekRecruit.Controllers
                         user.role = "User";
                         user.password = GenerateRandomPassword();
 
+                        var current_user_username = User.Identity?.Name;
+                        var current_user = _context.Users.FirstOrDefault(u => u.username == current_user_username);
+
+                        if (current_user == null)
+                        {
+                            ViewData["FlashMessage"] = "User not found. Please log in again.";
+                            return RedirectToAction("Login", "Login");
+                        }
+
+                        user.organization_id = current_user.organization_id;
+
                         _context.Add<User>(user);
                         _context.SaveChanges();
 

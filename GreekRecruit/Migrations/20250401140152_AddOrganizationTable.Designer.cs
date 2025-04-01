@@ -4,6 +4,7 @@ using GreekRecruit.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GreekRecruit.Migrations
 {
     [DbContext(typeof(SqlDataContext))]
-    partial class SqlDataContextModelSnapshot : ModelSnapshot
+    [Migration("20250401140152_AddOrganizationTable")]
+    partial class AddOrganizationTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,23 +53,6 @@ namespace GreekRecruit.Migrations
                     b.HasKey("comment_id");
 
                     b.ToTable("Comments");
-                });
-
-            modelBuilder.Entity("GreekRecruit.Models.Organization", b =>
-                {
-                    b.Property<int>("organization_id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("organization_id"));
-
-                    b.Property<string>("organization_name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("organization_id");
-
-                    b.ToTable("Organizations");
                 });
 
             modelBuilder.Entity("GreekRecruit.Models.PNM", b =>

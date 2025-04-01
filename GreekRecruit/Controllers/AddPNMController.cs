@@ -37,7 +37,16 @@ namespace GreekRecruit.Controllers
                         pnm.pnm_profilepicture = ms.ToArray();
                     }
                 }
+                var username = User.Identity?.Name;
+                var user = _context.Users.FirstOrDefault(u => u.username == username);
 
+                if (user == null)
+                {
+                    ViewData["FlashMessage"] = "User not found. Please log in again.";
+                    return RedirectToAction("Login", "Login");
+                }
+
+                pnm.organization_id = user.organization_id;
                 _context.PNMs.Add(pnm);
                 await _context.SaveChangesAsync();
 
@@ -50,6 +59,10 @@ namespace GreekRecruit.Controllers
             }
 
             return RedirectToAction("Index", "Home");
+
+
+            //Work on getting the "L" out of all dropdowns and instead grabbing the first letter from username and uppercasing it
+
         }
     }
 }
