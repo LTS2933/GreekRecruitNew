@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.CompilerServices;
 
 namespace GreekRecruit.Models
 {
@@ -15,6 +16,8 @@ namespace GreekRecruit.Models
 
         [NotMapped]
         public String? confirmPassword { get; set; }
+
+        public string full_name { get; set; }
         public String? email { get; set; }
 
         public String role { get; set; } = "User";

@@ -55,7 +55,7 @@ namespace GreekRecruit.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddUserData(string email)
+        public IActionResult AddUserData(string email, string full_name)
         {
             if (_context.Users.Any(u => u.email == email))
             {
@@ -66,6 +66,7 @@ namespace GreekRecruit.Controllers
             {
                 try
                 {
+
                     var emailSettings = _configuration.GetSection("EmailSettings");
                     var smtpServer = emailSettings["SmtpServer"];
                     var port = int.Parse(emailSettings["Port"]);
@@ -83,6 +84,7 @@ namespace GreekRecruit.Controllers
                         User user = new User();
                         user.username = email.Substring(0, ampersand_index);
                         user.email = email;
+                        user.full_name = full_name;
                         user.role = "User";
                         user.password = GenerateRandomPassword();
 
@@ -97,12 +99,12 @@ namespace GreekRecruit.Controllers
 
                         user.organization_id = current_user.organization_id;
 
-                        _context.Add<User>(user);
-                        _context.SaveChanges();
+                        //_context.Add<User>(user);
+                        //_context.SaveChanges();
 
                         mail.Subject = "Join GreekRecruit!";
-                        mail.Body = $"You've been invited to join GreekRecruit by your admin, {User.Identity.Name}.\nYou can now log in using this email.\nUsername: {user.username}\nPassword: {user.password}" +
-                        "\nIf you would like to rest your password, you can do so by clicking the Settings button in your profile dropdown.";
+                        mail.Body = $"You've been invited to join GreekRecruit by your admin, {current_user.full_name}.\nYou can now log in using this email.\nUsername: {user.username}\nPassword: {user.password}" +
+                        "\nIf you would like to reset your password, you can do so by clicking the Settings button in your profile dropdown.";
 
                         var smtpClient = new SmtpClient(smtpServer)
                         {
@@ -111,8 +113,23 @@ namespace GreekRecruit.Controllers
                             EnableSsl = true,
                         };
 
-                        smtpClient.Send(mail);
-                        TempData["SuccessMessage"] = $"Email sent to {email}";
+                        using var transaction = _context.Database.BeginTransaction();
+                        try
+                        {
+                            smtpClient.Send(mail);
+
+                            _context.Users.Add(user);
+                            _context.SaveChanges();
+
+                            transaction.Commit();
+
+                            TempData["SuccessMessage"] = $"User added and email sent to {email}";
+                        }
+                        catch (Exception innerEx)
+                        {
+                            transaction.Rollback();
+                            TempData["ErrorMessage"] = $"Error adding user or sending email: {innerEx.Message}";
+                        }
                     }
                     else
                     {

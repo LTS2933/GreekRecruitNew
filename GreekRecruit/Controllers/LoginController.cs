@@ -22,7 +22,7 @@ namespace GreekRecruit.Controllers
             return View();
         }
 
-        [Authorize]
+
         [HttpPost]
             public async Task<IActionResult> SubmitDataAsync(User model)
         {

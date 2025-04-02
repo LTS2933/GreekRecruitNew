@@ -25,7 +25,11 @@ namespace GreekRecruit.Controllers
         public IActionResult Index(int id)
         {
             var pnm = _context.PNMs.FirstOrDefault(p => p.pnm_id == id);
-            if (pnm == null) return NotFound();
+            if (pnm == null)
+            {
+                TempData["FlashMessage"] = "PNM ID not found.";
+                return RedirectToAction("Index", "Home");
+            }
 
             var comments = _context.Comments
                 .Where(c => c.pnm_id == id)
@@ -42,9 +46,19 @@ namespace GreekRecruit.Controllers
         {
             try
             {
+
+                var username = User.Identity?.Name;
+                var user = _context.Users.FirstOrDefault(u => u.username == username);
+
+                if (user == null)
+                {
+                    return Unauthorized();
+                }
+
                 comment.comment_dt = DateTime.Now;
                 comment.pnm_id = pnm_id;
-                comment.comment_author = User.Identity?.Name ?? "Unknown";
+                comment.comment_author = username ?? "Unknown";
+                comment.comment_author_name = user.full_name ?? "Unknown";
 
                 if (string.IsNullOrEmpty(comment.comment_text))
                 {
@@ -69,13 +83,6 @@ namespace GreekRecruit.Controllers
             }
         }
 
-
-        [Authorize]
-        public async Task<IActionResult> Logout()
-        {
-            await HttpContext.SignOutAsync("MyCookieAuth");
-            return RedirectToAction("Login", "Login");
-        }
 
         [Authorize]
         [HttpPost]
@@ -190,6 +197,13 @@ namespace GreekRecruit.Controllers
             }
 
             return RedirectToAction("Index", new { id = pnm_id });
+        }
+
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync("MyCookieAuth");
+            return RedirectToAction("Login", "Login");
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using GreekRecruit.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,7 @@ namespace GreekRecruit.Controllers
         {
             _context = context;
         }
+        [Authorize]
         public IActionResult Index()
         {
             return View();
@@ -43,7 +45,7 @@ namespace GreekRecruit.Controllers
                 if (user == null)
                 {
                     ViewData["FlashMessage"] = "User not found. Please log in again.";
-                    return RedirectToAction("Login", "Login");
+                    return Unauthorized();
                 }
 
                 pnm.organization_id = user.organization_id;
@@ -61,8 +63,12 @@ namespace GreekRecruit.Controllers
             return RedirectToAction("Index", "Home");
 
 
-            //Work on getting the "L" out of all dropdowns and instead grabbing the first letter from username and uppercasing it
-
+        }
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync("MyCookieAuth");
+            return RedirectToAction("Login", "Login");
         }
     }
 }

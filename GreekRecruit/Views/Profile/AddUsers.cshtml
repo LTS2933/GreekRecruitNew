@@ -64,6 +64,9 @@
 
     <form method="post" asp-controller="Profile" asp-action="AddUserData">
         <div class="mb-3">
+            <label for="full_name" class="form-label">Enter Full Name (First and Last) of new User:</label>
+            <input type="text" class="form-control" id="full_name" name="full_name" placeholder="John Smith" required>
+
             <label for="email" class="form-label">Enter Email Address for new User:</label>
             <input type="email" class="form-control" id="email" name="email" placeholder="user@example.com" required>
         </div>
