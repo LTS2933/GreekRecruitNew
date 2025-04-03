@@ -22,7 +22,7 @@ namespace GreekRecruit.Models
 
         public String? pnm_comments { get; set; }
 
-        public String? pnm_status { get; set; }
+        public String? pnm_status { get; set; } = "Pending";
 
 
     }

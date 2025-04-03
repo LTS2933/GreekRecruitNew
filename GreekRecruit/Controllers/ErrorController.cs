@@ -2,15 +2,19 @@
 
 public class ErrorController : Controller
 {
+    //Returns different error pages
     [Route("Error/{statusCode}")]
     public IActionResult HandleError(int statusCode)
     {
-       // if (statusCode == 404)
-       // {
+        if (statusCode == 404)
+        {
             return View("NotFound");
-        //}
-
-        //return View("GenericError"); // Fallback
+        }
+        else
+        {
+            return View("AccessDenied");
+        }
     }
 }
 
+//No need for authorization annotation

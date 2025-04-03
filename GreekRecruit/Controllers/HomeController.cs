@@ -5,6 +5,7 @@ using System.Text.Encodings.Web;
 using System.Xml.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.EntityFrameworkCore;
 
 namespace GreekRecruit.Controllers;
 
@@ -18,26 +19,30 @@ public class HomeController : Controller
         _context = context;
     }
 
+    //Homepage
     [Authorize]
-    public IActionResult Index()
+    [HttpGet]
+    public async Task<IActionResult> Index(string? status)
     {
         var username = User.Identity?.Name;
 
-        var user = _context.Users.FirstOrDefault(u => u.username == username);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
 
-        if (user == null)
+        if (user == null) return Unauthorized();
+
+
+        var pnmsQuery = _context.PNMs.Where(p => p.organization_id == user.organization_id);
+
+        if (!string.IsNullOrEmpty(status))
         {
-            return Unauthorized(); 
+            pnmsQuery = pnmsQuery.Where(p => p.pnm_status == status);
         }
 
-        var pnms = _context.PNMs
-                          .Where(p => p.organization_id == user.organization_id)
-                          .ToList();
-
+        var pnms = await pnmsQuery.ToListAsync();
         return View(pnms);
     }
 
-
+    //Logout
     [Authorize]
     public async Task<IActionResult> Logout()
     {

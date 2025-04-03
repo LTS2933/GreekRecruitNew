@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace GreekRecruit.Controllers
@@ -17,14 +18,15 @@ namespace GreekRecruit.Controllers
             _context = context;
         }
 
+        //Login page
         public IActionResult Login()
         {
             return View();
         }
 
-
+        //Submit user credentials to try to log in
         [HttpPost]
-            public async Task<IActionResult> SubmitDataAsync(User model)
+        public async Task<IActionResult> SubmitDataAsync(User model)
         {
             var email = model.email;
             //bool emailExists = _context.Users.Any(u => u.email == email);
@@ -42,7 +44,7 @@ namespace GreekRecruit.Controllers
             //    return View("Login");
             //}
             var pword = model.password;
-            bool correctUser = _context.Users.Any(u => u.username == uname && u.password == pword && u.email == email);
+            bool correctUser = await _context.Users.AnyAsync(u => u.username == uname && u.password == pword && u.email == email);
             if (!correctUser) {
                 TempData["FlashMessage"] = "Invalid credentials!";
                 return View("Login");

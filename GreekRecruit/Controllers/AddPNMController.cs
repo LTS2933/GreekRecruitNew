@@ -14,15 +14,29 @@ namespace GreekRecruit.Controllers
         {
             _context = context;
         }
+
         [Authorize]
+        
+        //Returns the view to Add a PNM
         public IActionResult Index()
         {
             return View();
         }
+
+        //Submits a new PNM with all datapoints from the form within the view
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> SubmitPNM(PNM pnm, IFormFile uploadedProfilePicture)
         {
+            var username = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
+
+            if (user == null)
+            {
+                ViewData["FlashMessage"] = "User not found. Please log in again.";
+                return Unauthorized();
+            }
+
             if (string.IsNullOrWhiteSpace(pnm.pnm_fname) || string.IsNullOrWhiteSpace(pnm.pnm_lname))
             {
                 ViewData["FlashMessage"] = "PNM's name cannot be empty!";
@@ -38,14 +52,6 @@ namespace GreekRecruit.Controllers
                         await uploadedProfilePicture.CopyToAsync(ms);
                         pnm.pnm_profilepicture = ms.ToArray();
                     }
-                }
-                var username = User.Identity?.Name;
-                var user = _context.Users.FirstOrDefault(u => u.username == username);
-
-                if (user == null)
-                {
-                    ViewData["FlashMessage"] = "User not found. Please log in again.";
-                    return Unauthorized();
                 }
 
                 pnm.organization_id = user.organization_id;
@@ -64,6 +70,8 @@ namespace GreekRecruit.Controllers
 
 
         }
+
+        //Logout
         [Authorize]
         public async Task<IActionResult> Logout()
         {

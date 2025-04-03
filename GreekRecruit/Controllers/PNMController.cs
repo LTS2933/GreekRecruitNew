@@ -7,6 +7,7 @@ using GreekRecruit.Models;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
 
 namespace GreekRecruit.Controllers
 {
@@ -21,38 +22,47 @@ namespace GreekRecruit.Controllers
             _context = context;
         }
 
+        //Returns the View for the given PNM we are on
         [Authorize]
-        public IActionResult Index(int id)
+        public async Task<IActionResult> Index(int id)
         {
-            var pnm = _context.PNMs.FirstOrDefault(p => p.pnm_id == id);
-            if (pnm == null)
+            var username = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
+            if (user == null) return Unauthorized();
+  
+            var pnm = await _context.PNMs.FirstOrDefaultAsync(p => p.pnm_id == id);
+            if (pnm == null || pnm.organization_id != user.organization_id)
             {
                 TempData["FlashMessage"] = "PNM ID not found.";
                 return RedirectToAction("Index", "Home");
             }
 
-            var comments = _context.Comments
+            var comments = await _context.Comments
                 .Where(c => c.pnm_id == id)
                 .OrderByDescending(c => c.comment_dt)
-                .ToList();
+                .ToListAsync();
             if (comments == null) return NotFound();
 
             return View((pnm, comments));
         }
 
+        //Submit a comment for a specific PNM
         [Authorize]
         [HttpPost("PNM/SubmitComment/{pnm_id}")]
         public async Task<IActionResult> SubmitComment(Comment comment, int pnm_id)
         {
             try
             {
-
                 var username = User.Identity?.Name;
-                var user = _context.Users.FirstOrDefault(u => u.username == username);
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
 
-                if (user == null)
+                if (user == null) return Unauthorized();
+
+                var pnm = await _context.PNMs.FirstOrDefaultAsync(p => p.pnm_id == pnm_id);
+                if (pnm == null || pnm.organization_id != user.organization_id)
                 {
-                    return Unauthorized();
+                    TempData["FlashMessage"] = "PNM ID not found.";
+                    return RedirectToAction("Index", "Home");
                 }
 
                 comment.comment_dt = DateTime.Now;
@@ -83,24 +93,28 @@ namespace GreekRecruit.Controllers
             }
         }
 
-
+        //Update the status of a PNM (accepted, denied, etc.) (Admin only)
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> EditStatus(IFormCollection form)
         {
+            var username = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
+
+            if (user == null) return Unauthorized();
+ 
+
             string? pnm_status = form["pnm_status"];
             var pnm_id_string = form["pnm_id"];
 
             if (!int.TryParse(pnm_id_string, out int pnm_id))
             {
-                return BadRequest("Invalid PNM ID.");
+                TempData["FlashMessage"] = "PNM ID not found.";
+                return RedirectToAction("Index", "Home");
             }
 
             var pnm = await _context.PNMs.FindAsync(pnm_id);
-            if (pnm == null)
-            {
-                return NotFound();
-            }
+            if (pnm == null) return NotFound();
 
             try
             {
@@ -118,20 +132,24 @@ namespace GreekRecruit.Controllers
             return RedirectToAction("Index", new { id = pnm_id });
         }
 
+        //Edit the PNM's info such as major, GPA, etc. (Admin only)
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> EditInfo(IFormCollection form)
         {
+            var username = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
+
+            if (user == null) return Unauthorized();
+            
             if (!int.TryParse(form["pnm_id"], out int pnm_id))
             {
-                return BadRequest("Invalid PNM ID.");
+                TempData["FlashMessage"] = "PNM ID not found.";
+                return RedirectToAction("Index", "Home");
             }
 
             var pnm = await _context.PNMs.FindAsync(pnm_id);
-            if (pnm == null)
-            {
-                return NotFound();
-            }
+            if (pnm == null) return NotFound();
 
             try
             {
@@ -162,11 +180,18 @@ namespace GreekRecruit.Controllers
             return RedirectToAction("Index", new { id = pnm_id });
         }
 
+
+        //Upload new Profile Picture for PNM based on PNM ID (Admin only)
         [HttpPost]
         [Authorize]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> UpdateProfilePicture(IFormFile newProfilePicture, int pnm_id)
         {
+            var username = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
+
+            if (user == null) return Unauthorized();
+
             if (newProfilePicture == null || newProfilePicture.Length == 0)
             {
                 TempData["FlashMessage"] = "Please select a valid image.";
@@ -174,10 +199,7 @@ namespace GreekRecruit.Controllers
             }
 
             var pnm = await _context.PNMs.FindAsync(pnm_id);
-            if (pnm == null)
-            {
-                return NotFound();
-            }
+            if (pnm == null) return NotFound();
 
             try
             {
@@ -199,6 +221,7 @@ namespace GreekRecruit.Controllers
             return RedirectToAction("Index", new { id = pnm_id });
         }
 
+        //Logout
         [Authorize]
         public async Task<IActionResult> Logout()
         {

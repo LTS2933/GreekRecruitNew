@@ -1,6 +1,8 @@
 ﻿
 @{
     ViewData["Title"] = "Home";
+    var selectedStatus = Context.Request.Query["status"].ToString();
+
 
 }
 @model List<GreekRecruit.Models.PNM>
@@ -56,11 +58,25 @@
 
 <h1>All PNMs</h1>
 
+<form method="get" asp-controller="Home" asp-action="Index" class="mb-3">
+    <div class="row g-2 align-items-center">
+        <div class="col-auto">
+            <select name="status" class="form-select" onchange="this.form.submit()">
+                <option value="">All Statuses</option>
+                <option value="Approved" selected="@(selectedStatus == "Approved")">Approved</option>
+                <option value="Denied" selected="@(selectedStatus == "Denied")">Denied</option>
+                <option value="Pending" selected="@(selectedStatus == "Pending")">Pending</option>
+            </select>
+        </div>
+    </div>
+</form>
+
 
 <table class="table table-bordered">
     <thead>
         <tr>
             <th>Name</th>
+            <th>Status</th>
             <th>Year</th>
             <th>GPA</th>
             <th>Major</th>
@@ -86,6 +102,8 @@
                     <a asp-controller="PNM" asp-action="Index" asp-route-id="@pnm.pnm_id">@($"{pnm.pnm_fname} {pnm.pnm_lname}")</a>
                     </td>
                
+                <td>@pnm.pnm_status</td>
+
                 <td>@pnm.pnm_schoolyear</td>
               
                 <td>@pnm.pnm_gpa</td>

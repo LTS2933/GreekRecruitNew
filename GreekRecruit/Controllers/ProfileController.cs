@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Mail;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.EntityFrameworkCore;
 
 namespace GreekRecruit.Controllers
 {
@@ -20,24 +21,27 @@ namespace GreekRecruit.Controllers
             _configuration = configuration;
         }
 
-        public IActionResult Index()
+        //Profile view of a user, showing basic credentials
+        [Authorize]
+        public async Task<IActionResult> Index()
         {
             var username = User.Identity?.Name;
-            var user = _context.Users.FirstOrDefault(u => u.username == username);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
 
-            if (user == null)
-            {
-                return NotFound();
-            }
+            if (user == null) return Unauthorized();
 
             return View(user);
         }
 
-        public IActionResult AddUsers()
+        //The View for Adding a new User to the Organization is rendered
+        [Authorize]
+        public async Task<IActionResult> AddUsers()
         {
             var username = User.Identity?.Name;
-            var user = _context.Users.FirstOrDefault(u => u.username == username);
-            if (user?.role == "Admin")
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
+            if (user == null) return Unauthorized();
+
+            if (user.role == "Admin")
             {
                 return View();
             }
@@ -47,17 +51,18 @@ namespace GreekRecruit.Controllers
             }
         }
 
-        [Authorize]
-        public async Task<IActionResult> Logout()
-        {
-            await HttpContext.SignOutAsync("MyCookieAuth");
-            return RedirectToAction("Login", "Login");
-        }
 
+        //Handles form data, emailing, and adding new User to DB
         [HttpPost]
-        public IActionResult AddUserData(string email, string full_name)
+        [Authorize]
+        public async Task<IActionResult> AddUserData(string email, string full_name)
         {
-            if (_context.Users.Any(u => u.email == email))
+            var curr_user_uname = User.Identity?.Name;
+            var curr_user = await _context.Users.FirstOrDefaultAsync(u => u.username == curr_user_uname);
+            if (curr_user == null) return Unauthorized();
+            if (curr_user.role != "Admin") return Forbid();
+
+            if (await _context.Users.AnyAsync(u => u.email == email))
             {
                 TempData["ErrorMessage"] = $"Email {email} already exists!";
                 return RedirectToAction("AddUsers");
@@ -144,6 +149,8 @@ namespace GreekRecruit.Controllers
                 return RedirectToAction("AddUsers");
             }
         }
+
+        //Helper method for AddUserData. Generates a random, valid password
         private string GenerateRandomPassword()
         {
             const string alphanumerics = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -161,5 +168,13 @@ namespace GreekRecruit.Controllers
             return new string(passwordChars.OrderBy(c => Guid.NewGuid()).ToArray());
         }
 
+
+        //Logout
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync("MyCookieAuth");
+            return RedirectToAction("Login", "Login");
+        }
     }
 }

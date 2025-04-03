@@ -6,7 +6,7 @@ namespace GreekRecruit.Models
     public class Comment
     {
        [Key]
-        public int comment_id { get; set; }
+       public int comment_id { get; set; }
        public int pnm_id { get; set; }
 
        public string comment_author { get; set; }
