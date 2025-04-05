@@ -1,6 +1,14 @@
-﻿@{
-    ViewData["Title"] = "Add PNMs via CSV";
+﻿@model GreekRecruit.Models.Event
+@{
+    ViewData["Title"] = "Add Rush Event";
 }
+@if (ViewData["FlashMessage"] != null)
+{
+    <script>
+        alert('@TempData["FlashMessage"]');
+    </script>
+}
+
 @{
     var username = User.Identity?.Name;
     var context = Context.RequestServices.GetService(typeof(SqlDataContext)) as SqlDataContext;
@@ -10,6 +18,7 @@
     {
         isAdmin = true;
     }
+
 }
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
@@ -24,11 +33,13 @@
         <a asp-controller="Event" asp-action="Index" class="btn btn-outline-primary">View Events</a>
     </div>
 
+
     <div class="d-flex align-items-center gap-2">
-        @{if (isAdmin)
-        {
-                <a asp-controller="AddEvent" asp-action="Index" class="btn btn-danger">Add Event</a>
-        }
+        @{
+            if (isAdmin)
+            {
+                <a asp-controller="AddPNM" asp-action="AddPNMCSV" class="btn btn-danger">Import PNMs from CSV</a>
+            }
         }
         <a asp-controller="AddPNM" asp-action="Index" class="btn btn-danger">+ Add PNM</a>
 
@@ -55,35 +66,34 @@
 </nav>
 
 
-
 <div class="container mt-5">
-    <h2 class="mb-4">Add PNMs from CSV</h2>
+    <h2 class="mb-4">Add a New Rush Event</h2>
 
-    <p>Please upload a <strong>.csv</strong> file with the following column format (in this exact order):</p>
+    <form asp-controller="AddEvent" asp-action="SubmitEventData" method="post">
 
-    <div class="alert alert-info">
-        <code>
-            pnm_fname, pnm_lname, pnm_email, pnm_phone, pnm_gpa, pnm_major, pnm_schoolyear, pnm_instagramhandle
-        </code>
-        <br />
-        <strong>Example row:</strong><br />
-        John,Smith,johnsmith@email.com,123456789,3.9,Biology,Sophomore,john.smith12
-    </div>
+        <input asp-for="organization_id" type="hidden" />
 
-    <form asp-controller="AddPNM" asp-action="ImportCSV" method="post" enctype="multipart/form-data">
         <div class="mb-3">
-            <label for="csvFile" class="form-label">Select CSV File</label>
-            <input type="file" name="csvFile" class="form-control" accept=".csv" required />
+            <label asp-for="event_name" class="form-label">Event Name</label>
+            <input asp-for="event_name" class="form-control" placeholder="e.g. Meet the Brothers" required />
         </div>
 
-        <button type="submit" class="btn btn-success">Import PNMs</button>
+        <div class="mb-3">
+            <label asp-for="event_datetime" class="form-label">Date & Time</label>
+            <input asp-for="event_datetime" class="form-control" type="datetime-local" required />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="event_address" class="form-label">Location</label>
+            <input asp-for="event_address" class="form-control" placeholder="999 College Ave, New Brunswick, NJ" required />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="event_description" class="form-label">Description (optional)</label>
+            <textarea asp-for="event_description" class="form-control" rows="3" placeholder="Optional details or notes..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Add Event</button>
         <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary ms-2">Cancel</a>
     </form>
-
-    @if (TempData["FlashMessage"] != null)
-    {
-        <script>
-            alert('@TempData["FlashMessage"]');
-        </script>
-    }
 </div>

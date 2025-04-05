@@ -12,5 +12,7 @@ namespace GreekRecruit.Models
         public string event_address { get; set; }
         public string? event_description { get; set; }
 
+        public int organization_id { get; set; }
+
     }
 }
