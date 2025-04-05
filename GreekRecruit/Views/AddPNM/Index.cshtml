@@ -32,16 +32,39 @@
             <img src="/images/greekrecruit_logo.jpg" alt="Home" width="40" height="40" class="d-inline-block align-top">
             <span class="ms-2">Home</span>
         </a>
-        <a asp-controller="Event" asp-action="Index" class="btn btn-outline-primary">View Events</a>
+
+        <div class="dropdown">
+            <button class="btn btn-danger dropdown-toggle" type="button" id="eventsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                Events
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="eventsDropdown">
+                @if (isAdmin)
+                {
+                    <li><a class="dropdown-item" asp-controller="AddEvent" asp-action="Index">Add Event</a></li>
+                }
+                <li><a class="dropdown-item" asp-controller="Event" asp-action="Index">View Events</a></li>
+            </ul>
+        </div>
+
+        <div class="dropdown">
+            <button class="btn btn-danger dropdown-toggle" type="button" id="pnmsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                PNMs
+            </button>
+            <ul class="dropdown-menu" style="white-space: nowrap; min-width: max-content;" aria-labelledby="pnmsDropdown">
+                @if (isAdmin)
+                {
+                    <li><a class="dropdown-item" asp-controller="AddPNM" asp-action="AddPNMCSV">Import PNMs from CSV</a></li>
+                }
+                
+            </ul>
+        </div>
+
     </div>
 
+
     <div class="d-flex align-items-center gap-2">
-        @{if (isAdmin) {
-                <a asp-controller="AddEvent" asp-action="Index" class="btn btn-danger">Add Event</a>
-                <a asp-controller="AddPNM" asp-action="AddPNMCSV" class="btn btn-danger">Import PNMs from CSV</a>
-            }
-        }
-       
+
+
         <div class="dropdown">
             <button class="btn btn-secondary dropdown-toggle rounded-circle p-2"
                     type="button"
@@ -52,7 +75,8 @@
             </button>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
                 <li><a asp-controller="Profile" asp-action="Index" class="dropdown-item">Profile</a></li>
-                @{if (isAdmin)
+                @{
+                    if (isAdmin)
                     {
                         <li><a asp-controller="Profile" asp-action="AddUsers" class="dropdown-item">Add Users</a></li>
                     }
@@ -62,7 +86,6 @@
         </div>
     </div>
 </nav>
-
 <h2>Submit a PNM</h2>
 
 <form asp-action="SubmitPNM" asp-controller="AddPNM" method="post" enctype="multipart/form-data">

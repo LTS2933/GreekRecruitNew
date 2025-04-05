@@ -1,23 +1,36 @@
-﻿
+﻿@model List<GreekRecruit.Models.Event>
 @{
-    ViewData["Title"] = "Add Users";
+    ViewData["Title"] = "All Events";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+@functions {
+    string GetSemesterLabel(DateTime date)
+    {
+        int year = date.Year;
+        if (date.Month <= 6 && !(date.Month == 6 && date.Day > 1))
+        {
+            return $"Spring {year}";
+        }
+        else
+        {
+            return $"Fall {year}";
+        }
+    }
 }
 @{
-    bool isAdmin = false;
-    var username = User.Identity.Name;
+    var username = User.Identity?.Name;
     var context = Context.RequestServices.GetService(typeof(SqlDataContext)) as SqlDataContext;
     var user = context?.Users.FirstOrDefault(u => u.username == username);
-
+    bool isAdmin = false;
     if (user?.role == "Admin")
     {
         isAdmin = true;
     }
 
 }
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 
 
 <nav class="navbar navbar-light bg-light p-3 d-flex justify-content-between">
@@ -32,11 +45,10 @@
                 Events
             </button>
             <ul class="dropdown-menu" aria-labelledby="eventsDropdown">
-                @if (isAdmin)
-                {
-                    <li><a class="dropdown-item" asp-controller="AddEvent" asp-action="Index">Add Event</a></li>
-                }
-                <li><a class="dropdown-item" asp-controller="Event" asp-action="Index">View Events</a></li>
+            @if (isAdmin)
+            {
+                <li><a class="dropdown-item" asp-controller="AddEvent" asp-action="Index">Add Event</a></li>
+            }
             </ul>
         </div>
 
@@ -80,37 +92,49 @@
         </div>
     </div>
 </nav>
+
+
 <div class="container mt-5">
-    <h2>Add New Users</h2>
+    <h2 class="mb-4">All Events</h2>
 
-    @if (TempData["SuccessMessage"] != null)
+    @if (!Model.Any())
     {
-        <script>
-            alert('@TempData["SuccessMessage"]');
-        </script>
-
-    }
-
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <script>
-            alert('@TempData["ErrorMessage"]');
-        </script>
-    }
-
-
-    <form method="post" asp-controller="Profile" asp-action="AddUserData">
-        <div class="mb-3">
-            <label for="full_name" class="form-label">Enter Full Name (First and Last) of new User:</label>
-            <input type="text" class="form-control" id="full_name" name="full_name" placeholder="John Smith" required>
-
-            <label for="email" class="form-label">Enter Email Address for new User:</label>
-            <input type="email" class="form-control" id="email" name="email" placeholder="user@example.com" required>
+        <div class="alert alert-info">
+            No events have been added yet.
         </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
+    }
+    else
+    {
+        var grouped = Model
+        .OrderBy(e => e.event_datetime)
+        .GroupBy(e => GetSemesterLabel(e.event_datetime));
 
-    <div class="mt-4">
-        <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Back to PNMs</a>
-    </div>
+        foreach (var semesterGroup in grouped)
+        {
+            <h3 class="mt-4">@semesterGroup.Key</h3>
+
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+                @foreach (var evt in semesterGroup)
+                {
+                    <div class="col">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">@evt.event_name</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">
+                                    @evt.event_datetime.ToString("MMMM dd, yyyy • h:mm tt")
+                                </h6>
+                                <p class="card-text mb-1">
+                                    <strong>Location:</strong> @evt.event_address
+                                </p>
+                                <p class="card-text">
+                                    <strong>Description:</strong>
+                                    @(string.IsNullOrWhiteSpace(evt.event_description) ? "—" : evt.event_description)
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
 </div>

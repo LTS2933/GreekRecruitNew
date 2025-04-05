@@ -20,6 +20,9 @@ namespace GreekRecruit.Controllers
             var username = User.Identity?.Name;
             var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
 
+            if (user == null) return Unauthorized();
+            if (user.role != "Admin") return Forbid();
+            
             var model = new Event
             {
                 organization_id = user.organization_id
