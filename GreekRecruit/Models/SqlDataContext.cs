@@ -9,6 +9,8 @@ namespace GreekRecruit.Models
         public DbSet<Comment> Comments { get; set; }
 
         public DbSet<Organization> Organizations { get; set; }
+
+        public DbSet<Event> Events { get; set; }
         public SqlDataContext(DbContextOptions<SqlDataContext> options) 
             : base(options)
         {}

@@ -1,0 +1,16 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace GreekRecruit.Models
+{
+    public class Event
+    {
+        [Key]
+        public int event_id { get; set; }
+
+        public string event_name { get; set; }
+        public DateTime event_datetime { get; set; }
+        public string event_address { get; set; }
+        public string? event_description { get; set; }
+
+    }
+}
