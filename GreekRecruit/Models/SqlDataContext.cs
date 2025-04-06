@@ -11,6 +11,8 @@ namespace GreekRecruit.Models
         public DbSet<Organization> Organizations { get; set; }
 
         public DbSet<Event> Events { get; set; }
+
+        public DbSet<EventAttendance> EventsAttendance { get; set; }
         public SqlDataContext(DbContextOptions<SqlDataContext> options) 
             : base(options)
         {}
