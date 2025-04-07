@@ -32,7 +32,6 @@
 
 }
 
-
 <nav class="navbar navbar-light bg-light p-3 d-flex justify-content-between">
     <div class="d-flex align-items-center gap-2">
         <a asp-controller="Home" asp-action="Index" class="navbar-brand d-flex align-items-center">
@@ -94,6 +93,22 @@
 </nav>
 
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mx-3 mt-3" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show mx-3 mt-3" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+
 <div class="container mt-5">
     <h2 class="mb-4">All Events</h2>
 
@@ -130,10 +145,34 @@
                                     <strong>Description:</strong>
                                     @(string.IsNullOrWhiteSpace(evt.event_description) ? "—" : evt.event_description)
                                 </p>
+
+                                <button class="btn btn-outline-secondary btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#qrModal-@evt.event_id">
+                                    Show QR Code
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="qrModal-@evt.event_id" tabindex="-1" aria-labelledby="qrModalLabel-@evt.event_id" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="qrModalLabel-@evt.event_id">QR Code for @evt.event_name</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body text-center">
+                                    @{
+                                        var qrUrl = Url.Action("Index", "EventAttendance", new { event_id = evt.event_id }, protocol: Context.Request.Scheme);
+                                        var encodedUrl = Uri.EscapeDataString(qrUrl);
+                                    }
+                                    <img src="https://api.qrserver.com/v1/create-qr-code/?data=@encodedUrl&size=200x200" alt="QR Code for @evt.event_name" class="mb-2" />
+                                    <p class="small text-muted">@qrUrl</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 }
+
             </div>
         }
     }

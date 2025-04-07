@@ -72,6 +72,21 @@
     </div>
 </nav>
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mx-3 mt-3" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show mx-3 mt-3" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 
 <div class="container mt-5">
     <h2 class="mb-4">Add PNMs from CSV</h2>
@@ -97,10 +112,4 @@
         <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary ms-2">Cancel</a>
     </form>
 
-    @if (TempData["FlashMessage"] != null)
-    {
-        <script>
-            alert('@TempData["FlashMessage"]');
-        </script>
-    }
 </div>

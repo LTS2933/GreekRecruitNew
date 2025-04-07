@@ -94,13 +94,13 @@ namespace GreekRecruit.Controllers
                         user.password = GenerateRandomPassword();
 
                         var current_user_username = User.Identity?.Name;
-                        var current_user = _context.Users.FirstOrDefault(u => u.username == current_user_username);
+                        var current_user = await _context.Users.FirstOrDefaultAsync(u => u.username == current_user_username);
 
-                        if (current_user == null)
-                        {
-                            ViewData["FlashMessage"] = "User not found. Please log in again.";
-                            return RedirectToAction("Login", "Login");
-                        }
+                        //if (current_user == null)
+                        //{
+                        //    ViewData["ErrorMessage"] = "User not found. Please log in again.";
+                        //    return RedirectToAction("Login", "Login");
+                        //}
 
                         user.organization_id = current_user.organization_id;
 
@@ -118,21 +118,21 @@ namespace GreekRecruit.Controllers
                             EnableSsl = true,
                         };
 
-                        using var transaction = _context.Database.BeginTransaction();
+                        using var transaction = await _context.Database.BeginTransactionAsync();
                         try
                         {
                             smtpClient.Send(mail);
 
                             _context.Users.Add(user);
-                            _context.SaveChanges();
+                            await _context.SaveChangesAsync();
 
-                            transaction.Commit();
+                            await transaction.CommitAsync();
 
                             TempData["SuccessMessage"] = $"User added and email sent to {email}";
                         }
                         catch (Exception innerEx)
                         {
-                            transaction.Rollback();
+                            await transaction.RollbackAsync();
                             TempData["ErrorMessage"] = $"Error adding user or sending email: {innerEx.Message}";
                         }
                     }

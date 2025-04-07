@@ -33,7 +33,7 @@ namespace GreekRecruit.Controllers
             var pnm = await _context.PNMs.FirstOrDefaultAsync(p => p.pnm_id == id);
             if (pnm == null || pnm.organization_id != user.organization_id)
             {
-                TempData["FlashMessage"] = "PNM ID not found.";
+                TempData["ErrorMessage"] = "PNM ID not found.";
                 return RedirectToAction("Index", "Home");
             }
 
@@ -61,7 +61,7 @@ namespace GreekRecruit.Controllers
                 var pnm = await _context.PNMs.FirstOrDefaultAsync(p => p.pnm_id == pnm_id);
                 if (pnm == null || pnm.organization_id != user.organization_id)
                 {
-                    TempData["FlashMessage"] = "PNM ID not found.";
+                    TempData["ErrorMessage"] = "PNM ID not found.";
                     return RedirectToAction("Index", "Home");
                 }
 
@@ -72,7 +72,7 @@ namespace GreekRecruit.Controllers
 
                 if (string.IsNullOrEmpty(comment.comment_text))
                 {
-                    TempData["FlashMessage"] = "Comment cannot be empty. Please try again.";
+                    TempData["ErrorMessage"] = "Comment cannot be empty. Please try again.";
 
                     return RedirectToAction("Index", new { id = pnm_id });
                 }
@@ -80,14 +80,14 @@ namespace GreekRecruit.Controllers
                 _context.Comments.Add(comment);
                 await _context.SaveChangesAsync();
 
-                TempData["FlashMessage"] = "Changes Saved.";
+                TempData["SuccessMessage"] = "Changes Saved.";
                 return RedirectToAction("Index", new { id = pnm_id });
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
 
-                TempData["FlashMessage"] = "Something went wrong while submitting the comment. Please try again.";
+                TempData["ErrorMEssage"] = "Something went wrong while submitting the comment. Please try again.";
 
                 return RedirectToAction("Index", new { id = pnm_id });
             }
@@ -109,7 +109,7 @@ namespace GreekRecruit.Controllers
 
             if (!int.TryParse(pnm_id_string, out int pnm_id))
             {
-                TempData["FlashMessage"] = "PNM ID not found.";
+                TempData["ErrorMessage"] = "PNM ID not found.";
                 return RedirectToAction("Index", "Home");
             }
 
@@ -121,13 +121,13 @@ namespace GreekRecruit.Controllers
                 pnm.pnm_status = pnm_status;
                 await _context.SaveChangesAsync();
 
-                TempData["FlashMessage"] = "Changes saved.";
+                TempData["SuccessMessage"] = "Changes saved.";
 
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                TempData["FlashMessage"] = "Error saving changes.";
+                TempData["ErrorMessage"] = "Error saving changes.";
             }
             return RedirectToAction("Index", new { id = pnm_id });
         }
@@ -144,7 +144,7 @@ namespace GreekRecruit.Controllers
             
             if (!int.TryParse(form["pnm_id"], out int pnm_id))
             {
-                TempData["FlashMessage"] = "PNM ID not found.";
+                TempData["ErrorMessage"] = "PNM ID not found.";
                 return RedirectToAction("Index", "Home");
             }
 
@@ -161,7 +161,7 @@ namespace GreekRecruit.Controllers
                 }
                 else
                 {
-                    TempData["FlashMessage"] = "Invalid GPA format. Please enter a valid number.";
+                    TempData["ErrorMessage"] = "Invalid GPA format. Please enter a valid number.";
                     return RedirectToAction("Index", new { id = pnm.pnm_id });
                 }
 
@@ -169,7 +169,7 @@ namespace GreekRecruit.Controllers
                 pnm.pnm_schoolyear = form["pnm_schoolyear"];
 
                 await _context.SaveChangesAsync();
-                TempData["FlashMessage"] = "PNM info updated successfully.";
+                TempData["SuccessMessage"] = "PNM info updated successfully.";
             }
             catch (Exception ex)
             {
@@ -194,7 +194,7 @@ namespace GreekRecruit.Controllers
 
             if (newProfilePicture == null || newProfilePicture.Length == 0)
             {
-                TempData["FlashMessage"] = "Please select a valid image.";
+                TempData["ErrorMessage"] = "Please select a valid image.";
                 return RedirectToAction("Index", new { id = pnm_id });
             }
 
@@ -210,12 +210,12 @@ namespace GreekRecruit.Controllers
                 }
 
                 await _context.SaveChangesAsync();
-                TempData["FlashMessage"] = "Profile picture updated successfully.";
+                TempData["SuccessMessage"] = "Profile picture updated successfully.";
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                TempData["FlashMessage"] = "Error updating profile picture.";
+                TempData["ErrorMessage"] = "Error updating profile picture.";
             }
 
             return RedirectToAction("Index", new { id = pnm_id });

@@ -46,7 +46,7 @@ namespace GreekRecruit.Controllers
             var pword = model.password;
             bool correctUser = await _context.Users.AnyAsync(u => u.username == uname && u.password == pword && u.email == email);
             if (!correctUser) {
-                TempData["FlashMessage"] = "Invalid credentials!";
+                TempData["ErrorMessage"] = "Invalid credentials!";
                 return View("Login");
             }
 

@@ -2,12 +2,7 @@
 @{
     ViewData["Title"] = "Add Rush Event";
 }
-@if (ViewData["FlashMessage"] != null)
-{
-    <script>
-        alert('@TempData["FlashMessage"]');
-    </script>
-}
+
 
 @{
     var username = User.Identity?.Name;
@@ -81,6 +76,21 @@
         </div>
     </div>
 </nav>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mx-3 mt-3" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show mx-3 mt-3" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
 
 <div class="container mt-5">

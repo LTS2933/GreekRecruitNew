@@ -39,13 +39,13 @@ namespace GreekRecruit.Controllers
 
             if (user == null)
             {
-                ViewData["FlashMessage"] = "User not found. Please log in again.";
+                ViewData["ErrorMessage"] = "User not found. Please log in again.";
                 return Unauthorized();
             }
 
             if (string.IsNullOrWhiteSpace(pnm.pnm_fname) || string.IsNullOrWhiteSpace(pnm.pnm_lname))
             {
-                ViewData["FlashMessage"] = "PNM's name cannot be empty!";
+                ViewData["ErrorMessage"] = "PNM's name cannot be empty!";
                 return View("Index");
             }
 
@@ -64,12 +64,12 @@ namespace GreekRecruit.Controllers
                 _context.PNMs.Add(pnm);
                 await _context.SaveChangesAsync();
 
-                ViewData["FlashMessage"] = "PNM submitted successfully!";
+                ViewData["SuccessMessage"] = "PNM submitted successfully!";
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                ViewData["FlashMessage"] = "Something went wrong while submitting the form. Please try again.";
+                ViewData["ErrorMessage"] = "Something went wrong while submitting the form. Please try again.";
             }
 
             return RedirectToAction("Index", "Home");
@@ -91,7 +91,7 @@ namespace GreekRecruit.Controllers
 
             if (csvFile == null || csvFile.Length == 0)
             {
-                TempData["FlashMessage"] = "Please upload a valid CSV file.";
+                TempData["ErrorMessage"] = "Please upload a valid CSV file.";
                 return RedirectToAction("AddPNMCSV");
             }
 
@@ -117,7 +117,7 @@ namespace GreekRecruit.Controllers
 
             if (headerLine == null)
             {
-                TempData["FlashMessage"] = "CSV file is empty. Please provide data.";
+                TempData["ErrorMessage"] = "CSV file is empty. Please provide data.";
                 return RedirectToAction("AddPNMCSV");
             }
 
@@ -128,7 +128,7 @@ namespace GreekRecruit.Controllers
             if (headers.Length != expectedHeaders.Length ||
                 !headers.SequenceEqual(expectedHeaders))
             {
-                TempData["FlashMessage"] = "CSV header is invalid. Please use the exact column names and order.";
+                TempData["ErrorMessage"] = "CSV header is invalid. Please use the exact column names and order.";
                 return RedirectToAction("AddPNMCSV");
             }
 
@@ -188,7 +188,7 @@ namespace GreekRecruit.Controllers
             _context.PNMs.AddRange(newPnms);
             await _context.SaveChangesAsync();
 
-            TempData["FlashMessage"] = $"{newPnms.Count} PNMs successfully imported. " +
+            TempData["SuccessMessage"] = $"{newPnms.Count} PNMs successfully imported. " +
                 (skippedRows.Any() ? $"Skipped rows: {string.Join(", ", skippedRows)}." : "");
 
             return RedirectToAction("Index", "Home");

@@ -1,4 +1,5 @@
 ﻿using GreekRecruit.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -45,7 +46,7 @@ namespace GreekRecruit.Controllers
                 _context.Events.Add(model);
                 await _context.SaveChangesAsync();
 
-                TempData["FlashMessage"] = "Event added successfully!";
+                TempData["SuccessMessage"] = "Event added successfully!";
                 return RedirectToAction("Index", "AddEvent");
             }
 
@@ -53,6 +54,13 @@ namespace GreekRecruit.Controllers
 
 
 
+        }
+        //Logout
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync("MyCookieAuth");
+            return RedirectToAction("Login", "Login");
         }
     }
 }

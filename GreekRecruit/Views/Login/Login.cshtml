@@ -2,17 +2,26 @@
 }
 
 @model GreekRecruit.Models.User
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mx-3 mt-3" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show mx-3 mt-3" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 
 <title>Login</title>
 <div class="text-center">
     <h1 class="display-4">Login</h1>
     <br />
-    @if (TempData["FlashMessage"] != null)
-    {
-        <script>
-            alert('@TempData["FlashMessage"]');
-        </script>
-    }
     <img src="~/images/greekrecruit_logo.jpg" style="height:100px; width=100px;"/>
     <form asp-controller="Login" asp-action="SubmitData" method="POST">
         <label for="email">Email</label>
