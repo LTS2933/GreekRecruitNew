@@ -231,6 +231,7 @@ namespace GreekRecruit.Controllers
             return RedirectToAction("Index", new { id = pnm_id });
         }
 
+        // 6) Open a new voting session (Admin only)
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
@@ -268,7 +269,7 @@ namespace GreekRecruit.Controllers
             return RedirectToAction("Index", new { id = pnm_id });
         }
 
-
+        // 7) Close the current voting session (Admin only)
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
@@ -301,6 +302,8 @@ namespace GreekRecruit.Controllers
 
             return RedirectToAction("Index", new { id = pnm_id });
         }
+
+        // 8) Display a Vote page (public link)
         [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Vote(int pnm_id)
@@ -308,7 +311,6 @@ namespace GreekRecruit.Controllers
             var pnm = await _context.PNMs.FindAsync(pnm_id);
             if (pnm == null) return NotFound();
 
-            // Find the active session
             var currentSession = await _context.PNMVoteSessions
                 .Where(s => s.pnm_id == pnm_id && s.voting_open_yn)
                 .FirstOrDefaultAsync();
@@ -318,10 +320,19 @@ namespace GreekRecruit.Controllers
                 return View("NoActiveSession", pnm);
             }
 
-            // Show a simple page to cast a Yes/No vote, passing currentSession
+            if (DateTime.Now - currentSession.session_open_dt > TimeSpan.FromMinutes(20))
+            {
+                currentSession.voting_open_yn = false;
+                currentSession.session_close_dt = DateTime.Now;
+                await _context.SaveChangesAsync();
+
+                return View("NoActiveSession", pnm);
+            }
+
             return View((pnm, currentSession));
         }
 
+        // 9) Submit the actual vote
         [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -334,6 +345,16 @@ namespace GreekRecruit.Controllers
             if (session == null)
             {
                 TempData["ErrorMessage"] = "No active voting session or it's already closed.";
+                return RedirectToAction("Vote", new { pnm_id });
+            }
+
+            if (DateTime.Now - session.session_open_dt > TimeSpan.FromMinutes(20))
+            {
+                session.voting_open_yn = false;
+                session.session_close_dt = DateTime.Now;
+                await _context.SaveChangesAsync();
+
+                TempData["ErrorMessage"] = "Session has expired (20 min limit).";
                 return RedirectToAction("Vote", new { pnm_id });
             }
 
@@ -352,6 +373,7 @@ namespace GreekRecruit.Controllers
             TempData["SuccessMessage"] = "Vote recorded!";
             return RedirectToAction("Vote", new { pnm_id });
         }
+
 
         //Logout
         [Authorize]

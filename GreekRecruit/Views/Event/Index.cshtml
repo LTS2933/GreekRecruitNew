@@ -145,10 +145,11 @@
                                     <strong>Description:</strong>
                                     @(string.IsNullOrWhiteSpace(evt.event_description) ? "—" : evt.event_description)
                                 </p>
-
-                                <button class="btn btn-outline-secondary btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#qrModal-@evt.event_id">
-                                    Show QR Code
-                                </button>
+                                @if (isAdmin == true) {
+                                    <button class="btn btn-outline-secondary btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#qrModal-@evt.event_id">
+                                        Show QR Code
+                                    </button>
+                                }
                             </div>
                         </div>
                     </div>
