@@ -98,6 +98,7 @@
 <h2>Submit a PNM</h2>
 
 <form asp-action="SubmitPNM" asp-controller="AddPNM" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
     <div>
         <label for="pnm_fname">First Name:</label>
         <input type="text" id="pnm_fname" name="pnm_fname" required />

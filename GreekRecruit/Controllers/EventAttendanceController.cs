@@ -14,6 +14,8 @@ namespace GreekRecruit.Controllers
             _context = context;
         }
 
+        //Returns the view for ANYONE to say they attended a given event
+        [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> Index(int event_id)
         {
@@ -27,8 +29,10 @@ namespace GreekRecruit.Controllers
             return View(r_event);
         }
 
+        //Handles the form submission for a user to say they attended an event
         [HttpPost]
         [AllowAnonymous]
+        
         public async Task<IActionResult> SubmitAttendance(EventAttendance attendance)
         {
             if (!ModelState.IsValid)
@@ -52,19 +56,21 @@ namespace GreekRecruit.Controllers
             return RedirectToAction("ThankYou");
         }
 
+        //Returns the view of the site just saying user is good after filling out form
         [HttpGet]
         [AllowAnonymous]
         public IActionResult ThankYou()
         {
             return View();
         }
-        //Logout
-        [Authorize]
-        public async Task<IActionResult> Logout()
-        {
-            await HttpContext.SignOutAsync("MyCookieAuth");
-            return RedirectToAction("Login", "Login");
-        }
+
+        ////Logout
+        //[Authorize]
+        //public async Task<IActionResult> Logout()
+        //{
+        //    await HttpContext.SignOutAsync("MyCookieAuth");
+        //    return RedirectToAction("Login", "Login");
+        //}
 
     }
 }

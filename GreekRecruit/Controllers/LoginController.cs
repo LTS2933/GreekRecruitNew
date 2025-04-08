@@ -4,6 +4,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using BCrypt.Net;
+
+
+
 
 namespace GreekRecruit.Controllers
 {
@@ -44,6 +48,8 @@ namespace GreekRecruit.Controllers
             //    return View("Login");
             //}
             var pword = model.password;
+            //Will need to hash eventually
+           // user.password = BCrypt.Net.BCrypt.HashPassword(plainTextPassword);
             bool correctUser = await _context.Users.AnyAsync(u => u.username == uname && u.password == pword && u.email == email);
             if (!correctUser) {
                 TempData["ErrorMessage"] = "Invalid credentials!";

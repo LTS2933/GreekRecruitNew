@@ -14,6 +14,8 @@ namespace GreekRecruit.Controllers
         {
             _context = context;
         }
+
+        //Returns the view for a user to add an event after filling out the provided fields on the pag
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> Index()
@@ -32,8 +34,10 @@ namespace GreekRecruit.Controllers
             return View("Index", model);
         }
 
+        //Handles the form submission for adding an event
         [HttpPost]
         [Authorize]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> SubmitEventData(Event model)
         {
             var username = User.Identity?.Name;
@@ -55,6 +59,7 @@ namespace GreekRecruit.Controllers
 
 
         }
+
         //Logout
         [Authorize]
         public async Task<IActionResult> Logout()

@@ -6,6 +6,8 @@ using System.Net.Mail;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+
 
 namespace GreekRecruit.Controllers
 {
@@ -55,6 +57,7 @@ namespace GreekRecruit.Controllers
         //Handles form data, emailing, and adding new User to DB
         [HttpPost]
         [Authorize]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddUserData(string email, string full_name)
         {
             var curr_user_uname = User.Identity?.Name;
@@ -84,7 +87,7 @@ namespace GreekRecruit.Controllers
 
 
                     int ampersand_index = email.IndexOf("@");
-                    if (ampersand_index > 0)
+                    if (!MailAddress.TryCreate(email, out _))
                     {
                         User user = new User();
                         user.username = email.Substring(0, ampersand_index);
@@ -92,6 +95,10 @@ namespace GreekRecruit.Controllers
                         user.full_name = full_name;
                         user.role = "User";
                         user.password = GenerateRandomPassword();
+                        //Will want to implement a password hashing algorithm here
+                        //var hasher = new PasswordHasher<User>();
+                        //string hashedPassword = hasher.HashPassword(user, user.password);
+                        //user.password = hashedPassword;
 
                         var current_user_username = User.Identity?.Name;
                         var current_user = await _context.Users.FirstOrDefaultAsync(u => u.username == current_user_username);
@@ -121,7 +128,7 @@ namespace GreekRecruit.Controllers
                         using var transaction = await _context.Database.BeginTransactionAsync();
                         try
                         {
-                            smtpClient.Send(mail);
+                            await smtpClient.SendMailAsync(mail);
 
                             _context.Users.Add(user);
                             await _context.SaveChangesAsync();

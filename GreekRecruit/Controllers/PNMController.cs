@@ -49,6 +49,7 @@ namespace GreekRecruit.Controllers
         //Submit a comment for a specific PNM
         [Authorize]
         [HttpPost("PNM/SubmitComment/{pnm_id}")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> SubmitComment(Comment comment, int pnm_id)
         {
             try
@@ -87,7 +88,7 @@ namespace GreekRecruit.Controllers
             {
                 Console.WriteLine(ex);
 
-                TempData["ErrorMEssage"] = "Something went wrong while submitting the comment. Please try again.";
+                TempData["ErrorMessage"] = "Something went wrong while submitting the comment. Please try again.";
 
                 return RedirectToAction("Index", new { id = pnm_id });
             }
@@ -96,6 +97,7 @@ namespace GreekRecruit.Controllers
         //Update the status of a PNM (accepted, denied, etc.) (Admin only)
         [Authorize]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditStatus(IFormCollection form)
         {
             var username = User.Identity?.Name;
@@ -135,6 +137,7 @@ namespace GreekRecruit.Controllers
         //Edit the PNM's info such as major, GPA, etc. (Admin only)
         [Authorize]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditInfo(IFormCollection form)
         {
             var username = User.Identity?.Name;
@@ -174,7 +177,7 @@ namespace GreekRecruit.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                TempData["FlashMessage"] = "Error updating PNM info.";
+                TempData["ErrorMessage"] = "Error updating PNM info.";
             }
 
             return RedirectToAction("Index", new { id = pnm_id });
@@ -185,6 +188,7 @@ namespace GreekRecruit.Controllers
         [HttpPost]
         [Authorize]
         [Consumes("multipart/form-data")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateProfilePicture(IFormFile newProfilePicture, int pnm_id)
         {
             var username = User.Identity?.Name;
@@ -220,6 +224,78 @@ namespace GreekRecruit.Controllers
 
             return RedirectToAction("Index", new { id = pnm_id });
         }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> OpenVoting(int pnm_id)
+        {
+            var username = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
+            if (user == null) return Unauthorized();
+            if (user.role != "Admin") return Forbid();
+
+            var pnm = await _context.PNMs.FindAsync(pnm_id);
+            if (pnm == null) return NotFound();
+
+            var existingOpenSession = await _context.PNMVoteSessions
+                .Where(v => v.pnm_id == pnm_id && v.voting_open_yn)
+                .FirstOrDefaultAsync();
+            if (existingOpenSession != null)
+            {
+                existingOpenSession.voting_open_yn = false;
+                existingOpenSession.session_close_dt = DateTime.Now;
+            }
+
+            var newSession = new PNMVoteSession
+            {
+                pnm_id = pnm_id,
+                voting_open_yn = true,
+                yes_count = 0,
+                no_count = 0
+            };
+            _context.PNMVoteSessions.Add(newSession);
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Voting session opened!";
+            return RedirectToAction("Index", new { id = pnm_id });
+        }
+
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CloseVoting(int pnm_id)
+        {
+            var username = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
+            if (user == null) return Unauthorized();
+            if (user.role != "Admin") return Forbid();
+
+            var pnm = await _context.PNMs.FindAsync(pnm_id);
+            if (pnm == null) return NotFound();
+
+            // Find the active session
+            var currentSession = await _context.PNMVoteSessions
+                .Where(v => v.pnm_id == pnm_id && v.voting_open_yn)
+                .FirstOrDefaultAsync();
+            if (currentSession == null)
+            {
+                TempData["ErrorMessage"] = "No active voting session found.";
+            }
+            else
+            {
+                currentSession.voting_open_yn = false;
+                currentSession.session_close_dt = DateTime.Now;
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Voting session closed!";
+            }
+
+            return RedirectToAction("Index", new { id = pnm_id });
+        }
+
 
         //Logout
         [Authorize]

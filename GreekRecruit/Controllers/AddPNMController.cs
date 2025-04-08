@@ -14,7 +14,7 @@ namespace GreekRecruit.Controllers
         {
             _context = context;
         }
-
+        [HttpGet]
         [Authorize]
         
         //Returns the view to Add a PNM
@@ -22,7 +22,8 @@ namespace GreekRecruit.Controllers
         {
             return View();
         }
-
+        [HttpGet]
+        [Authorize]
         //Returns the view for batch adding PNMs via a CSV file
         public IActionResult AddPNMCSV()
         {
@@ -32,6 +33,7 @@ namespace GreekRecruit.Controllers
         //Submits a new PNM with all datapoints from the form within the view
         [Authorize]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> SubmitPNM(PNM pnm, IFormFile uploadedProfilePicture)
         {
             var username = User.Identity?.Name;
@@ -80,6 +82,7 @@ namespace GreekRecruit.Controllers
         //Batch Add PNMs from a CSV file
         [HttpPost]
         [Authorize]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ImportCSV(IFormFile csvFile)
         {
             var username = User.Identity?.Name;

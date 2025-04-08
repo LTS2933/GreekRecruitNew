@@ -101,6 +101,7 @@
 
 
     <form method="post" asp-controller="Profile" asp-action="AddUserData">
+        @Html.AntiForgeryToken()
         <div class="mb-3">
             <label for="full_name" class="form-label">Enter Full Name (First and Last) of new User:</label>
             <input type="text" class="form-control" id="full_name" name="full_name" placeholder="John Smith" required>

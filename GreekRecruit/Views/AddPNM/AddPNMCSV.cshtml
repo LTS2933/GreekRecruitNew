@@ -103,6 +103,7 @@
     </div>
 
     <form asp-controller="AddPNM" asp-action="ImportCSV" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
         <div class="mb-3">
             <label for="csvFile" class="form-label">Select CSV File</label>
             <input type="file" name="csvFile" class="form-control" accept=".csv" required />

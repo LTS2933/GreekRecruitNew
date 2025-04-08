@@ -4,6 +4,7 @@ using GreekRecruit.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GreekRecruit.Migrations
 {
     [DbContext(typeof(SqlDataContext))]
-    partial class SqlDataContextModelSnapshot : ModelSnapshot
+    [Migration("20250408031457_AddVotingTable")]
+    partial class AddVotingTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -186,37 +189,6 @@ namespace GreekRecruit.Migrations
                     b.HasKey("pnm_id");
 
                     b.ToTable("PNMs");
-                });
-
-            modelBuilder.Entity("GreekRecruit.Models.PNMVoteSession", b =>
-                {
-                    b.Property<int>("vote_session_id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("vote_session_id"));
-
-                    b.Property<int>("no_count")
-                        .HasColumnType("int");
-
-                    b.Property<int>("pnm_id")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("session_close_dt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("session_open_dt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("voting_open_yn")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("yes_count")
-                        .HasColumnType("int");
-
-                    b.HasKey("vote_session_id");
-
-                    b.ToTable("PNMVoteSessions");
                 });
 
             modelBuilder.Entity("GreekRecruit.Models.User", b =>

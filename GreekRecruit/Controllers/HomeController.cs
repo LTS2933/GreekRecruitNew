@@ -33,7 +33,8 @@ public class HomeController : Controller
 
         var pnmsQuery = _context.PNMs.Where(p => p.organization_id == user.organization_id);
 
-        if (!string.IsNullOrEmpty(status))
+        var validStatuses = new[] { "Approved", "Denied", "Pending" };
+        if (!string.IsNullOrEmpty(status) && validStatuses.Contains(status))
         {
             pnmsQuery = pnmsQuery.Where(p => p.pnm_status == status);
         }

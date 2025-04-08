@@ -97,6 +97,7 @@
     <h2 class="mb-4">Add a New Rush Event</h2>
 
     <form asp-controller="AddEvent" asp-action="SubmitEventData" method="post">
+        @Html.AntiForgeryToken()
 
         <input asp-for="organization_id" type="hidden" />
 

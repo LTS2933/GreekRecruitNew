@@ -106,6 +106,7 @@
         @if (isAdmin)
         {
             <form asp-action="EditInfo" method="post">
+                @Html.AntiForgeryToken()
                 <input type="hidden" name="pnm_id" value="@pnm.pnm_id" />
 
                     <dt>Email</dt>
@@ -160,6 +161,7 @@
         <dt>Profile Picture</dt>
         <dd>
             <form asp-action="UpdateProfilePicture" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
                 <input type="hidden" name="pnm_id" value="@pnm.pnm_id" />
 
                 @if (pnm.pnm_profilepicture != null && pnm.pnm_profilepicture.Length > 0)
@@ -191,6 +193,7 @@
             if (isAdmin)
             {
                 <form asp-action="EditStatus" method="post">
+                    @Html.AntiForgeryToken()
                     <input type="hidden" name="pnm_id" value="@pnm.pnm_id" />
 
                     <label for="pnm_status">Status</label>
@@ -243,6 +246,7 @@ else
 <h3>Leave a Comment</h3>
 
 <form asp-action="SubmitComment" asp-controller="PNM" asp-route-pnm_id="@pnm.pnm_id" method="post">
+    @Html.AntiForgeryToken()
     <div class="form-group">
         <textarea name="comment_text" class="form-control" rows="6" cols="50" required></textarea>
     </div>
