@@ -43,7 +43,13 @@ namespace GreekRecruit.Controllers
                 .ToListAsync();
             if (comments == null) return NotFound();
 
-            return View((pnm, comments));
+            var sessions = await _context.PNMVoteSessions
+                .Where(s => s.pnm_id == id)
+                .OrderByDescending(s => s.session_open_dt)
+                .ToListAsync();
+
+
+            return View((pnm, comments, sessions));
         }
 
         //Submit a comment for a specific PNM
@@ -295,7 +301,57 @@ namespace GreekRecruit.Controllers
 
             return RedirectToAction("Index", new { id = pnm_id });
         }
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> Vote(int pnm_id)
+        {
+            var pnm = await _context.PNMs.FindAsync(pnm_id);
+            if (pnm == null) return NotFound();
 
+            // Find the active session
+            var currentSession = await _context.PNMVoteSessions
+                .Where(s => s.pnm_id == pnm_id && s.voting_open_yn)
+                .FirstOrDefaultAsync();
+
+            if (currentSession == null)
+            {
+                return View("NoActiveSession", pnm);
+            }
+
+            // Show a simple page to cast a Yes/No vote, passing currentSession
+            return View((pnm, currentSession));
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SubmitVote(int pnm_id, string voteValue)
+        {
+            var session = await _context.PNMVoteSessions
+                .Where(s => s.pnm_id == pnm_id && s.voting_open_yn)
+                .FirstOrDefaultAsync();
+
+            if (session == null)
+            {
+                TempData["ErrorMessage"] = "No active voting session or it's already closed.";
+                return RedirectToAction("Vote", new { pnm_id });
+            }
+
+            if (voteValue == "Yes")
+                session.yes_count++;
+            else if (voteValue == "No")
+                session.no_count++;
+            else
+            {
+                TempData["ErrorMessage"] = "Invalid vote selection.";
+                return RedirectToAction("Vote", new { pnm_id });
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Vote recorded!";
+            return RedirectToAction("Vote", new { pnm_id });
+        }
 
         //Logout
         [Authorize]

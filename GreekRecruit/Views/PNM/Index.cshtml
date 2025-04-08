@@ -1,9 +1,10 @@
-﻿@model (GreekRecruit.Models.PNM PNM, List<GreekRecruit.Models.Comment> Comments)
+﻿@model (GreekRecruit.Models.PNM PNM, List<GreekRecruit.Models.Comment> Comments, List<GreekRecruit.Models.PNMVoteSession> Sessions)
 
 @{
     ViewData["Title"] = "PNM Profile";
     var pnm = Model.PNM;
     var comments = Model.Comments;
+    var sessions = Model.Sessions;
 
 }
 
@@ -219,6 +220,32 @@
 </div>
 
 <hr />
+
+<h3>Voting Sessions</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Opened</th>
+            <th>Closed</th>
+            <th>Yes</th>
+            <th>No</th>
+        </tr>
+    </thead>
+    <tbody>
+    @if (sessions.Any()){
+        @foreach (var session in sessions)
+        {
+            <tr>
+                <td>@session.session_open_dt</td>
+                <td>@(session.session_close_dt.HasValue ? session.session_close_dt.Value.ToString() : "Still Open")</td>
+                <td>@session.yes_count</td>
+                <td>@session.no_count</td>
+            </tr>
+        }
+    }
+    </tbody>
+</table>
+
 
 <h3>Comments</h3>
 
