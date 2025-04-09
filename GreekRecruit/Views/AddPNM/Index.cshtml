@@ -21,7 +21,7 @@
 <nav class="navbar navbar-light bg-light p-3 d-flex justify-content-between">
     <div class="d-flex align-items-center gap-2">
         <a asp-controller="Home" asp-action="Index" class="navbar-brand d-flex align-items-center">
-            <img src="/images/greekrecruit_logo.jpg" alt="Home" width="40" height="40" class="d-inline-block align-top">
+            <img src="/images/greekrecruit_logo.png" alt="Home" width="40" height="40" class="d-inline-block align-top">
             <span class="ms-2">Home</span>
         </a>
 
@@ -94,59 +94,80 @@
     </div>
 }
 
+<!-- Main Container -->
+<div class="container mt-5" style="max-width: 600px;">
+    <div class="card shadow">
+        <div class="card-body">
+            <h2 class="card-title text-center mb-4">Submit a PNM</h2>
 
-<h2>Submit a PNM</h2>
+            <form asp-action="SubmitPNM" asp-controller="AddPNM" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
 
-<form asp-action="SubmitPNM" asp-controller="AddPNM" method="post" enctype="multipart/form-data">
-    @Html.AntiForgeryToken()
-    <div>
-        <label for="pnm_fname">First Name:</label>
-        <input type="text" id="pnm_fname" name="pnm_fname" required />
+                <div class="mb-3">
+                    <label for="pnm_fname" class="form-label fw-bold">First Name</label>
+                    <input type="text" id="pnm_fname" name="pnm_fname"
+                           class="form-control" required autofocus />
+                </div>
+
+                <div class="mb-3">
+                    <label for="pnm_lname" class="form-label fw-bold">Last Name</label>
+                    <input type="text" id="pnm_lname" name="pnm_lname"
+                           class="form-control" required />
+                </div>
+
+                <div class="mb-3">
+                    <label for="pnm_email" class="form-label fw-bold">Email</label>
+                    <input type="email" id="pnm_email" name="pnm_email"
+                           class="form-control" placeholder="john.smith@email.com" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="pnm_phone" class="form-label fw-bold">Phone</label>
+                    <input type="text" id="pnm_phone" name="pnm_phone"
+                           class="form-control" placeholder="(555) 555-5555" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="pnm_gpa" class="form-label fw-bold">GPA</label>
+                    <input type="number" id="pnm_gpa" name="pnm_gpa"
+                           class="form-control" step="0.01" min="0" max="4"
+                           placeholder="3.5" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="pnm_major" class="form-label fw-bold">Major</label>
+                    <input type="text" id="pnm_major" name="pnm_major"
+                           class="form-control" placeholder="e.g. Biology" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="pnm_schoolyear" class="form-label fw-bold">School Year</label>
+                    <input type="text" id="pnm_schoolyear" name="pnm_schoolyear"
+                           class="form-control" placeholder="e.g. Sophomore" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="pnm_instagramhandle" class="form-label fw-bold">Instagram Handle</label>
+                    <input type="text" id="pnm_instagramhandle" name="pnm_instagramhandle"
+                           class="form-control"
+                           placeholder="john.smith12 (Do not include @@ symbol)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="uploadedProfilePicture" class="form-label fw-bold">Profile Picture</label>
+                    <input type="file" id="uploadedProfilePicture" name="uploadedProfilePicture"
+                           accept="image/*" class="form-control" />
+                </div>
+
+                <div class="d-grid d-sm-flex justify-content-sm-end mt-4">
+                    <button type="submit" class="btn btn-primary me-sm-2">Submit</button>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary ms-2">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
-
-    <div>
-        <label for="pnm_lname">Last Name:</label>
-        <input type="text" id="pnm_lname" name="pnm_lname" required />
-    </div>
-
-    <div>
-        <label for="pnm_email">Email:</label>
-        <input type="email" id="pnm_email" name="pnm_email" />
-    </div>
-
-    <div>
-        <label for="pnm_phone">Phone:</label>
-        <input type="text" id="pnm_phone" name="pnm_phone" />
-    </div>
-
-    <div>
-        <label for="pnm_gpa">GPA:</label>
-        <input type="number" id="pnm_gpa" name="pnm_gpa" step="0.01" min="0" max="4" placeholder="3.5"/>
-    </div>
-
-    <div>
-        <label for="pnm_major">Major:</label>
-        <input type="text" id="pnm_major" name="pnm_major" />
-    </div>
-
-    <div>
-        <label for="pnm_schoolyear">School Year:</label>
-        <input type="text" id="pnm_schoolyear" name="pnm_schoolyear" />
-    </div>
-
-    <div>
-        <label for="pnm_instagramhandle">Instagram Handle:</label>
-        <input type="text" placeholder="john.smith12 (Do not include @@ symbol)"id="pnm_instagramhandle" name="pnm_instagramhandle" style="width:300px;"/>
-    </div>
-
-    <div>
-        <label for="uploadedProfilePicture">Profile Picture:</label>
-        <input type="file" id="uploadedProfilePicture" name="uploadedProfilePicture" accept="image/*" />
-    </div>
-
-    <button type="submit">Submit</button>
-</form>
-<div class="mt-4">
-    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Back to PNMs</a>
 </div>
+
 

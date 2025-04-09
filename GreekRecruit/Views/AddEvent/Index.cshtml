@@ -22,7 +22,7 @@
 <nav class="navbar navbar-light bg-light p-3 d-flex justify-content-between">
     <div class="d-flex align-items-center gap-2">
         <a asp-controller="Home" asp-action="Index" class="navbar-brand d-flex align-items-center">
-            <img src="/images/greekrecruit_logo.jpg" alt="Home" width="40" height="40" class="d-inline-block align-top">
+            <img src="/images/greekrecruit_logo.png" alt="Home" width="40" height="40" class="d-inline-block align-top">
             <span class="ms-2">Home</span>
         </a>
 
@@ -41,11 +41,11 @@
                 PNMs
             </button>
             <ul class="dropdown-menu" style="white-space: nowrap; min-width: max-content;" aria-labelledby="pnmsDropdown">
+                <li><a class="dropdown-item" asp-controller="AddPNM" asp-action="Index">Add PNM</a></li>
                 @if (isAdmin)
                 {
                     <li><a class="dropdown-item" asp-controller="AddPNM" asp-action="AddPNMCSV">Import PNMs from CSV</a></li>
                 }
-                <li><a class="dropdown-item" asp-controller="AddPNM" asp-action="Index">Add PNM</a></li>
             </ul>
         </div>
 
@@ -92,36 +92,49 @@
     </div>
 }
 
+<div class="container mt-5" style="max-width: 600px;">
+    <div class="card shadow">
+        <div class="card-body">
+            <h2 class="card-title mb-4 text-center">Add a New Event</h2>
 
-<div class="container mt-5">
-    <h2 class="mb-4">Add a New Rush Event</h2>
+            <form asp-controller="AddEvent" asp-action="SubmitEventData" method="post">
+                @Html.AntiForgeryToken()
 
-    <form asp-controller="AddEvent" asp-action="SubmitEventData" method="post">
-        @Html.AntiForgeryToken()
+                <input asp-for="organization_id" type="hidden" />
 
-        <input asp-for="organization_id" type="hidden" />
+                <div class="mb-3">
+                    <label asp-for="event_name" class="form-label fw-bold">Event Name</label>
+                    <input asp-for="event_name" class="form-control"
+                           placeholder="e.g. Meet the Brothers" required autofocus/>
+                </div>
 
-        <div class="mb-3">
-            <label asp-for="event_name" class="form-label">Event Name</label>
-            <input asp-for="event_name" class="form-control" placeholder="e.g. Meet the Brothers" required />
+                <div class="mb-3">
+                    <label asp-for="event_datetime" class="form-label fw-bold">Date &amp; Time</label>
+                    <input asp-for="event_datetime" class="form-control"
+                           type="datetime-local" required step="60" />
+                           <!--Still showing weird datapoints-->
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="event_address" class="form-label fw-bold">Location</label>
+                    <input asp-for="event_address" class="form-control"
+                           placeholder="999 College Ave, New Brunswick, NJ" required />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="event_description" class="form-label fw-bold">Description (optional)</label>
+                    <textarea asp-for="event_description" class="form-control"
+                              rows="3"
+                              placeholder="Optional details or notes..."></textarea>
+                </div>
+
+                <div class="d-grid gap-2 d-sm-flex justify-content-sm-end mt-4">
+                    <button type="submit" class="btn btn-primary">Add Event</button>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
         </div>
-
-        <div class="mb-3">
-            <label asp-for="event_datetime" class="form-label">Date & Time</label>
-            <input asp-for="event_datetime" class="form-control" type="datetime-local" required />
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="event_address" class="form-label">Location</label>
-            <input asp-for="event_address" class="form-control" placeholder="999 College Ave, New Brunswick, NJ" required />
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="event_description" class="form-label">Description (optional)</label>
-            <textarea asp-for="event_description" class="form-control" rows="3" placeholder="Optional details or notes..."></textarea>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Add Event</button>
-        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary ms-2">Cancel</a>
-    </form>
+    </div>
 </div>

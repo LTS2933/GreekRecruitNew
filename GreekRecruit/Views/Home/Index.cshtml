@@ -28,7 +28,7 @@
 <nav class="navbar navbar-light bg-light p-3 d-flex justify-content-between">
     <div class="d-flex align-items-center gap-2">
         <a asp-controller="Home" asp-action="Index" class="navbar-brand d-flex align-items-center">
-            <img src="/images/greekrecruit_logo.jpg" alt="Home" width="40" height="40" class="d-inline-block align-top">
+            <img src="/images/greekrecruit_logo.png" alt="Home" width="40" height="40" class="d-inline-block align-top">
             <span class="ms-2">Home</span>
         </a>
 
@@ -50,11 +50,12 @@
                 PNMs
             </button>
             <ul class="dropdown-menu" style="white-space: nowrap; min-width: max-content;" aria-labelledby="pnmsDropdown">
+               
+                <li><a class="dropdown-item" asp-controller="AddPNM" asp-action="Index">Add PNM</a></li>
                 @if (isAdmin)
                 {
                     <li><a class="dropdown-item" asp-controller="AddPNM" asp-action="AddPNMCSV">Import PNMs from CSV</a></li>
                 }
-                <li><a class="dropdown-item" asp-controller="AddPNM" asp-action="Index">Add PNM</a></li>
             </ul>
         </div>
 
@@ -109,9 +110,12 @@
         <div class="col-auto">
             <select name="status" class="form-select" onchange="this.form.submit()">
                 <option value="">All Statuses</option>
-                <option value="Approved" selected="@(selectedStatus == "Approved")">Approved</option>
-                <option value="Denied" selected="@(selectedStatus == "Denied")">Denied</option>
                 <option value="Pending" selected="@(selectedStatus == "Pending")">Pending</option>
+                <option value="Accepted" selected="@(selectedStatus == "Accepted")">Accepted</option>
+                <option value="Offered" selected="@(selectedStatus == "Offered")">Offered</option>
+                <option value="No Offer" selected="@(selectedStatus == "No Offer")">No Offer</option>
+                <option value="Declined" selected="@(selectedStatus == "Declined")">Declined</option>
+
             </select>
         </div>
     </div>

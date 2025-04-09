@@ -27,7 +27,7 @@
 <nav class="navbar navbar-light bg-light p-3 d-flex justify-content-between">
     <div class="d-flex align-items-center gap-2">
         <a asp-controller="Home" asp-action="Index" class="navbar-brand d-flex align-items-center">
-            <img src="/images/greekrecruit_logo.jpg" alt="Home" width="40" height="40" class="d-inline-block align-top" />
+            <img src="/images/greekrecruit_logo.png" alt="Home" width="40" height="40" class="d-inline-block align-top" />
             <span class="ms-2">Home</span>
         </a>
 
@@ -49,11 +49,12 @@
                 PNMs
             </button>
             <ul class="dropdown-menu" style="white-space: nowrap; min-width: max-content;" aria-labelledby="pnmsDropdown">
+               
+                <li><a class="dropdown-item" asp-controller="AddPNM" asp-action="Index">Add PNM</a></li>
                 @if (isAdmin)
                 {
                     <li><a class="dropdown-item" asp-controller="AddPNM" asp-action="AddPNMCSV">Import PNMs from CSV</a></li>
                 }
-                <li><a class="dropdown-item" asp-controller="AddPNM" asp-action="Index">Add PNM</a></li>
             </ul>
         </div>
     </div>
@@ -120,8 +121,12 @@
                             </div>
                             <div class="mb-2">
                                 <label>Phone</label>
-                                <input type="text" name="pnm_phone" value="@pnm.pnm_phone" class="form-control" />
+                                <div class="d-flex align-items-center">
+                                    <input type="text" id="pnmPhoneInput" name="pnm_phone" value="@pnm.pnm_phone" class="form-control" />
+                                    <div id="macSMSButtonContainer" class="ms-2"></div>
+                                </div>
                             </div>
+
                             <div class="mb-2">
                                 <label>GPA</label>
                                 <input type="text" name="pnm_gpa" value="@pnm.pnm_gpa" class="form-control" />
@@ -177,8 +182,10 @@
                             }
                             <select name="pnm_status" class="form-select" id="pnm_status">
                                 <!option value="Pending" @(currentStatus == "Pending" ? "selected" : "")>Pending</!option>
-                                <!option value="Approved" @(currentStatus == "Approved" ? "selected" : "")>Approved</!option>
-                                <!option value="Denied" @(currentStatus == "Denied" ? "selected" : "")>Denied</!option>
+                                <!option value="Accepted" @(currentStatus == "Accepted" ? "selected" : "")>Accepted</!option>
+                                <!option value="Offered" @(currentStatus == "Offered" ? "selected" : "")>Offered</!option>
+                                <!option value="No Offer" @(currentStatus == "No Offer" ? "selected" : "")>No Offer</!option>
+                                <!option value="Declined" @(currentStatus == "Declined" ? "selected" : "")>Declined</!option>
                             </select>
                             <button type="submit" class="btn btn-primary mt-2">Save</button>
                         </form>
@@ -357,4 +364,30 @@
             </form>
         </div>
     </div>
+    <div class="text-end mt-4">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-dark">
+            Home
+        </a>
+    </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var isAppleDevice = /Mac|iPhone|iPad|iPod/.test(navigator.platform);
+        var phoneInput = document.getElementById("pnmPhoneInput");
+        var container = document.getElementById("macSMSButtonContainer");
+
+        if (isAppleDevice && phoneInput && container) {
+            var phone = phoneInput.value.trim();
+            var sanitized = phone.replace(/[^0-9+]/g, "");
+
+            if (sanitized.length > 0) {
+                var button = document.createElement("a");
+                button.href = "sms:" + sanitized;
+                button.textContent = "Send Message";
+                button.className = "btn btn-outline-primary btn-sm ms-2";
+                container.appendChild(button);
+            }
+        }
+    });
+</script>

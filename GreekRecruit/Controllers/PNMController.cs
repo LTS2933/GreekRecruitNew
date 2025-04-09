@@ -250,8 +250,8 @@ namespace GreekRecruit.Controllers
                 .FirstOrDefaultAsync();
             if (existingOpenSession != null)
             {
-                existingOpenSession.voting_open_yn = false;
-                existingOpenSession.session_close_dt = DateTime.Now;
+                TempData["ErrorMessage"] = "There's already an active voting session...";
+                return RedirectToAction("Index", new { id = pnm_id });
             }
 
             var newSession = new PNMVoteSession
@@ -369,9 +369,16 @@ namespace GreekRecruit.Controllers
             }
 
             await _context.SaveChangesAsync();
+            //Probably want this to redirect elsehwere, don't let them vote again
+            //TempData["SuccessMessage"] = "Vote recorded!";
+            return RedirectToAction("Thankyou");
 
-            TempData["SuccessMessage"] = "Vote recorded!";
-            return RedirectToAction("Vote", new { pnm_id });
+        }
+
+        [HttpGet]
+        public IActionResult Thankyou()
+        {
+            return View();
         }
 
 
