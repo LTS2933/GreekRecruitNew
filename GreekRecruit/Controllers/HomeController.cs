@@ -22,16 +22,15 @@ public class HomeController : Controller
     //Homepage
     [Authorize]
     [HttpGet]
-    public async Task<IActionResult> Index(string? status)
+    public async Task<IActionResult> Index(string? status, string? search, string? sort)
     {
         var username = User.Identity?.Name;
-
         var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
 
         if (user == null) return Unauthorized();
 
-
-        var pnmsQuery = _context.PNMs.Where(p => p.organization_id == user.organization_id);
+        var pnmsQuery = _context.PNMs
+            .Where(p => p.organization_id == user.organization_id);
 
         var validStatuses = new[] { "Offered", "No Offer", "Pending", "Declined", "Accepted" };
         if (!string.IsNullOrEmpty(status) && validStatuses.Contains(status))
@@ -39,9 +38,68 @@ public class HomeController : Controller
             pnmsQuery = pnmsQuery.Where(p => p.pnm_status == status);
         }
 
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            search = search.ToLower();
+            pnmsQuery = pnmsQuery.Where(p =>
+                (p.pnm_fname + " " + p.pnm_lname).ToLower().Contains(search));
+        }
+
+        pnmsQuery = sort switch
+        {
+            "name_asc" => pnmsQuery.OrderBy(p => p.pnm_lname).ThenBy(p => p.pnm_fname),
+            "name_desc" => pnmsQuery.OrderByDescending(p => p.pnm_lname).ThenByDescending(p => p.pnm_fname),
+            "gpa_asc" => pnmsQuery.OrderBy(p => p.pnm_gpa),
+            "gpa_desc" => pnmsQuery.OrderByDescending(p => p.pnm_gpa),
+            _ => pnmsQuery.OrderBy(p => p.pnm_lname)
+        };
+
         var pnms = await pnmsQuery.ToListAsync();
         return View(pnms);
     }
+
+
+    //Applies a status change or deletes PNMs from homepage
+    [HttpPost]
+    [Authorize]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> BatchUpdate(int[] selectedPnms, string newStatus, bool delete = false)
+    {
+        var username = User.Identity.Name;
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
+        if (user == null) return Unauthorized();
+        if (user.role != "Admin") return Forbid();
+
+        if (selectedPnms == null || selectedPnms.Length == 0)
+        {
+            TempData["ErrorMessage"] = "No PNMs selected.";
+            return RedirectToAction("Index");
+        }
+
+        var pnms = await _context.PNMs.Where(p => selectedPnms.Contains(p.pnm_id)).ToListAsync();
+
+        if (delete)
+        {
+            _context.PNMs.RemoveRange(pnms);
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = $"{pnms.Count} PNMs deleted.";
+            return RedirectToAction("Index");
+        }
+
+        if (!string.IsNullOrEmpty(newStatus))
+        {
+            pnms.ForEach(p => p.pnm_status = newStatus);
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Status updated successfully.";
+        }
+        else
+        {
+            TempData["ErrorMessage"] = "No status selected.";
+        }
+
+        return RedirectToAction("Index");
+    }
+
 
     //Logout
     [Authorize]
