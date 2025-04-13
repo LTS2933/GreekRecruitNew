@@ -64,13 +64,35 @@ namespace GreekRecruit.Controllers
             return View();
         }
 
-        ////Logout
-        //[Authorize]
-        //public async Task<IActionResult> Logout()
-        //{
-        //    await HttpContext.SignOutAsync("MyCookieAuth");
-        //    return RedirectToAction("Login", "Login");
-        //}
+        //Returns the view of PNMs who attended a given event
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> ViewAttendees(int event_id)
+        {
+            var username = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
+
+            if (user == null) return Unauthorized();
+
+            var r_event = await _context.Events.FirstOrDefaultAsync(e => e.event_id == event_id && e.organization_id == user.organization_id);
+            if (r_event == null) return NotFound();
+
+            var attendees = await _context.EventsAttendance
+                .Where(a => a.event_id == event_id && a.organization_id == user.organization_id)
+                .OrderByDescending(a => a.checked_in_at)
+                .ToListAsync();
+
+            ViewData["EventName"] = r_event.event_name;
+            return View(attendees);
+        }
+
+        //Logout
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync("MyCookieAuth");
+            return RedirectToAction("Login", "Login");
+        }
 
     }
 }

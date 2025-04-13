@@ -54,6 +54,19 @@
             </ul>
         </div>
 
+        <div class="dropdown">
+            <button class="btn btn-danger dropdown-toggle" type="button" id="formsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                Interest Forms
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="formsDropdown">
+                @if (isAdmin)
+                {
+                    <li><a class="dropdown-item" asp-controller="InterestForm" asp-action="Create">Add Interest Form</a></li>
+                }
+                <li><a class="dropdown-item" asp-controller="InterestForm" asp-action="Index">View Forms/Submissions</a></li>
+            </ul>
+        </div>
+
     </div>
 
 

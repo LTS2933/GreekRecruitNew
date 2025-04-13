@@ -4,6 +4,7 @@ using GreekRecruit.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GreekRecruit.Migrations
 {
     [DbContext(typeof(SqlDataContext))]
-    partial class SqlDataContextModelSnapshot : ModelSnapshot
+    [Migration("20250413035631_AddInterestFormsTable")]
+    partial class AddInterestFormsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -166,34 +169,8 @@ namespace GreekRecruit.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("form_id"));
 
-                    b.Property<DateTime>("date_created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("form_name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("organization_id")
-                        .HasColumnType("int");
-
-                    b.HasKey("form_id");
-
-                    b.ToTable("InterestForms");
-                });
-
-            modelBuilder.Entity("GreekRecruit.Models.InterestFormSubmission", b =>
-                {
-                    b.Property<int>("submission_id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("submission_id"));
-
                     b.Property<DateTime>("date_submitted")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("form_id")
-                        .HasColumnType("int");
 
                     b.Property<int>("organization_id")
                         .HasColumnType("int");
@@ -206,9 +183,6 @@ namespace GreekRecruit.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double?>("pnm_gpa")
-                        .HasColumnType("float");
-
                     b.Property<string>("pnm_instagramhandle")
                         .HasColumnType("nvarchar(max)");
 
@@ -219,23 +193,17 @@ namespace GreekRecruit.Migrations
                     b.Property<string>("pnm_major")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("pnm_membersknown")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("pnm_phone")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<byte[]>("pnm_profilepicture")
-                        .HasColumnType("varbinary(max)");
 
                     b.Property<string>("pnm_schoolyear")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("submission_id");
+                    b.HasKey("form_id");
 
-                    b.ToTable("InterestFormSubmissions");
+                    b.ToTable("InterestForms");
                 });
 
             modelBuilder.Entity("GreekRecruit.Models.Organization", b =>
