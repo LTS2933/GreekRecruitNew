@@ -63,6 +63,7 @@ namespace GreekRecruit.Controllers
                 }
 
                 pnm.organization_id = user.organization_id;
+                pnm.pnm_semester = GetCurrentSemester();
                 _context.PNMs.Add(pnm);
                 await _context.SaveChangesAsync();
 
@@ -182,7 +183,8 @@ namespace GreekRecruit.Controllers
                     pnm_gpa = gpaValue,
                     pnm_major = major,
                     pnm_schoolyear = schoolYear,
-                    pnm_instagramhandle = insta
+                    pnm_instagramhandle = insta,
+                    pnm_semester = GetCurrentSemester()
                 };
 
                 newPnms.Add(pnm);
@@ -204,5 +206,15 @@ namespace GreekRecruit.Controllers
             await HttpContext.SignOutAsync("MyCookieAuth");
             return RedirectToAction("Login", "Login");
         }
+
+        private string GetCurrentSemester()
+        {
+            var now = DateTime.Now;
+            var year = now.Year;
+            return (now.Month <= 6 && !(now.Month == 6 && now.Day > 1))
+                ? $"Spring {year}"
+                : $"Fall {year}";
+        }
+
     }
 }

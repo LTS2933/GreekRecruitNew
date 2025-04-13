@@ -16,6 +16,8 @@ namespace GreekRecruit.Models
 
         public DbSet<PNMVoteSession> PNMVoteSessions { get; set; }
 
+        public DbSet<PNMVoteTracker> PNMVoteTrackers { get; set; }
+
         public DbSet<AdminTask> AdminTasks { get; set; }
 
         public DbSet<InterestForm> InterestForms { get; set; }

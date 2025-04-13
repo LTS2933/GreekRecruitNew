@@ -154,6 +154,29 @@
                                 <input type="text" name="pnm_schoolyear" value="@pnm.pnm_schoolyear" class="form-control" />
                             </div>
 
+                            <div class="col-md-6">
+                                <label class="form-label">Semester</label>
+                                <select class="form-select" name="pnm_semester">
+                                    @{
+                                        var currentYear = DateTime.Now.Year;
+                                        var semesterOptions = new List<string> {
+                                $"Spring {currentYear}",
+                                $"Fall {currentYear}",
+                                $"Spring {currentYear - 1}",
+                                $"Fall {currentYear - 1}",
+                                $"Spring {currentYear + 1}",
+                                $"Fall {currentYear + 1}"
+                                };
+                                    }
+                                    @foreach (var sem in semesterOptions)
+                                    {
+                                        <option value="@sem" selected="@(sem == @pnm.pnm_semester ? "selected" : null)">@sem</option>
+                                    }
+                                </select>
+                            </div>
+
+
+
                             <div class="text-end mt-3">
                                 <button type="submit" class="btn btn-success">
                                     Save Info

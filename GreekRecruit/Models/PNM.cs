@@ -24,6 +24,11 @@ namespace GreekRecruit.Models
 
         public String? pnm_status { get; set; } = "Pending";
 
+        public string? pnm_semester { get; set; } //shouldn't be null but just in case
+
+        public DateTime pnm_dateadded { get; set; } = DateTime.Now;
+
+
 
     }
 }

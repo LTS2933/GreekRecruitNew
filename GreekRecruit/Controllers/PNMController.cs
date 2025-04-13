@@ -176,6 +176,8 @@ namespace GreekRecruit.Controllers
 
                 pnm.pnm_major = form["pnm_major"];
                 pnm.pnm_schoolyear = form["pnm_schoolyear"];
+                pnm.pnm_semester = form["pnm_semester"];
+
 
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "PNM info updated successfully.";
@@ -303,11 +305,15 @@ namespace GreekRecruit.Controllers
             return RedirectToAction("Index", new { id = pnm_id });
         }
 
-        // 8) Display a Vote page (public link)
-        [AllowAnonymous]
+        // 8) Display a Vote page (for users only)
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> Vote(int pnm_id)
         {
+            var username = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
+            if (user == null) return Unauthorized();
+
             var pnm = await _context.PNMs.FindAsync(pnm_id);
             if (pnm == null) return NotFound();
 
@@ -332,12 +338,16 @@ namespace GreekRecruit.Controllers
             return View((pnm, currentSession));
         }
 
-        // 9) Submit the actual vote
-        [AllowAnonymous]
+        // 9) Submit the actual vote (users only)
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SubmitVote(int pnm_id, string voteValue)
         {
+            var username = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
+            if (user == null) return Unauthorized();
+
             var session = await _context.PNMVoteSessions
                 .Where(s => s.pnm_id == pnm_id && s.voting_open_yn)
                 .FirstOrDefaultAsync();
@@ -358,6 +368,17 @@ namespace GreekRecruit.Controllers
                 return RedirectToAction("Vote", new { pnm_id });
             }
 
+            // Check if the user already voted in this session
+            bool alreadyVoted = await _context.PNMVoteTrackers
+                .AnyAsync(t => t.vote_session_id == session.vote_session_id && t.user_id == user.user_id);
+
+            if (alreadyVoted)
+            {
+                TempData["ErrorMessage"] = "You have already voted in this session.";
+                return RedirectToAction("Vote", new { pnm_id });
+            }
+
+            // Record vote (tally only)
             if (voteValue == "Yes")
                 session.yes_count++;
             else if (voteValue == "No")
@@ -368,13 +389,20 @@ namespace GreekRecruit.Controllers
                 return RedirectToAction("Vote", new { pnm_id });
             }
 
-            await _context.SaveChangesAsync();
-            //Probably want this to redirect elsehwere, don't let them vote again
-            //TempData["SuccessMessage"] = "Vote recorded!";
-            return RedirectToAction("Thankyou");
+            // Track vote
+            var tracker = new PNMVoteTracker
+            {
+                vote_session_id = session.vote_session_id,
+                user_id = user.user_id
+            };
+            _context.PNMVoteTrackers.Add(tracker);
 
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Thankyou");
         }
 
+        //Page that thanks users for casting their vote
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult Thankyou()
         {
@@ -389,5 +417,6 @@ namespace GreekRecruit.Controllers
             await HttpContext.SignOutAsync("MyCookieAuth");
             return RedirectToAction("Login", "Login");
         }
+
     }
 }

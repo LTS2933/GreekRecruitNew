@@ -117,8 +117,6 @@
 }
 
 
-<h1>All PNMs</h1>
-
 @if (isAdmin)
 {
     var tasks = ViewData["TaskPreview"] as List<GreekRecruit.Models.AdminTask>;
@@ -161,8 +159,33 @@
 }
 
 
+<h1>All PNMs – @ViewData["CurrentSemester"]</h1>
+
 <form method="get" asp-controller="Home" asp-action="Index" class="mb-3">
     <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label">Semester</label>
+            <select name="semester" class="form-select" onchange="this.form.submit()">
+                @{
+                    var selectedSemester = Context.Request.Query["semester"].ToString() ?? ViewData["CurrentSemester"]?.ToString();
+                    var currentYear = DateTime.Now.Year;
+                    var semesters = new List<string>
+                {
+                $"Spring {currentYear}",
+                $"Fall {currentYear}",
+                $"Spring {currentYear -1 }",
+                $"Fall {currentYear - 1}",
+                $"Spring {currentYear - 2}",
+                $"Fall {currentYear - 2}"
+                };
+                }
+                @foreach (var sem in semesters)
+                {
+                    <option value="@sem" selected="@(selectedSemester == sem ? "selected" : null)">@sem</option>
+                }
+            </select>
+        </div>
+
         <div class="col-md-3">
             <label class="form-label">Filter by Status</label>
             <select name="status" class="form-select" onchange="this.form.submit()">
@@ -174,11 +197,13 @@
                 <option value="Declined" selected="@(selectedStatus == "Declined")">Declined</option>
             </select>
         </div>
+
         <div class="col-md-4">
             <label class="form-label">Search by Name</label>
             <input type="text" name="search" value="@Context.Request.Query["search"]" class="form-control" />
         </div>
-        <div class="col-md-3">
+
+        <div class="col-md-2">
             <label class="form-label">Sort</label>
             <select name="sort" class="form-select" onchange="this.form.submit()">
                 <option value="">Default</option>
@@ -186,13 +211,18 @@
                 <option value="name_desc" selected="@(Context.Request.Query["sort"] == "name_desc")">Name (Z-A)</option>
                 <option value="gpa_asc" selected="@(Context.Request.Query["sort"] == "gpa_asc")">GPA (Low to High)</option>
                 <option value="gpa_desc" selected="@(Context.Request.Query["sort"] == "gpa_desc")">GPA (High to Low)</option>
+                <option value="date_newest" selected="@(Context.Request.Query["sort"] == "date_newest")">Most Recent</option>
+                <option value="date_oldest" selected="@(Context.Request.Query["sort"] == "date_oldest")">Oldest</option>
             </select>
+
         </div>
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-primary mt-3">Apply</button>
+
+        <div class="col-md-12 text-end">
+            <button type="submit" class="btn btn-primary">Apply Filters</button>
         </div>
     </div>
 </form>
+
 
 @if (isAdmin)
 {
@@ -246,6 +276,17 @@
                     <option value="Declined">Declined</option>
                 </select>
             </div>
+
+            <div class="col-md-3">
+                <select name="newSemester" class="form-select">
+                    <option value="">Move to Semester...</option>
+                    <option value="Spring 2025">Spring 2025</option>
+                    <option value="Fall 2025">Fall 2025</option>
+                    <option value="Spring 2024">Spring 2024</option>
+                    <option value="Fall 2024">Fall 2024</option>
+                </select>
+            </div>
+
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary">Apply Status</button>
             </div>

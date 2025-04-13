@@ -22,15 +22,18 @@ public class HomeController : Controller
     //Homepage
     [Authorize]
     [HttpGet]
-    public async Task<IActionResult> Index(string? status, string? search, string? sort)
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> Index(string? semester, string? status, string? search, string? sort)
     {
         var username = User.Identity?.Name;
         var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
-
         if (user == null) return Unauthorized();
 
+        semester ??= GetCurrentSemester();
+
         var pnmsQuery = _context.PNMs
-            .Where(p => p.organization_id == user.organization_id);
+            .Where(p => p.organization_id == user.organization_id && p.pnm_semester == semester);
 
         var validStatuses = new[] { "Offered", "No Offer", "Pending", "Declined", "Accepted" };
         if (!string.IsNullOrEmpty(status) && validStatuses.Contains(status))
@@ -51,6 +54,8 @@ public class HomeController : Controller
             "name_desc" => pnmsQuery.OrderByDescending(p => p.pnm_lname).ThenByDescending(p => p.pnm_fname),
             "gpa_asc" => pnmsQuery.OrderBy(p => p.pnm_gpa),
             "gpa_desc" => pnmsQuery.OrderByDescending(p => p.pnm_gpa),
+            "date_newest" => pnmsQuery.OrderByDescending(p => p.pnm_dateadded),
+            "date_oldest" => pnmsQuery.OrderBy(p => p.pnm_dateadded),
             _ => pnmsQuery.OrderBy(p => p.pnm_lname)
         };
 
@@ -67,6 +72,7 @@ public class HomeController : Controller
         }
 
         ViewData["TaskPreview"] = taskPreview;
+        ViewData["CurrentSemester"] = semester;
 
         return View(pnms);
     }
@@ -76,7 +82,7 @@ public class HomeController : Controller
     [HttpPost]
     [Authorize]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> BatchUpdate(int[] selectedPnms, string newStatus, bool delete = false)
+    public async Task<IActionResult> BatchUpdate(int[] selectedPnms, string newStatus, string newSemester, bool delete = false)
     {
         var username = User.Identity.Name;
         var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
@@ -99,19 +105,33 @@ public class HomeController : Controller
             return RedirectToAction("Index");
         }
 
-        if (!string.IsNullOrEmpty(newStatus))
+        bool madeChanges = false;
+
+        if (!string.IsNullOrWhiteSpace(newStatus))
         {
             pnms.ForEach(p => p.pnm_status = newStatus);
+            madeChanges = true;
+        }
+
+        if (!string.IsNullOrWhiteSpace(newSemester))
+        {
+            pnms.ForEach(p => p.pnm_semester = newSemester);
+            madeChanges = true;
+        }
+
+        if (madeChanges)
+        {
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = "Status updated successfully.";
+            TempData["SuccessMessage"] = "Changes applied successfully.";
         }
         else
         {
-            TempData["ErrorMessage"] = "No status selected.";
+            TempData["ErrorMessage"] = "No changes were made. Please select a status or semester.";
         }
 
         return RedirectToAction("Index");
     }
+
 
 
     //Logout
@@ -120,6 +140,14 @@ public class HomeController : Controller
     {
         await HttpContext.SignOutAsync("MyCookieAuth");
         return RedirectToAction("Login", "Login");
+    }
+
+    private string GetCurrentSemester()
+    {
+        var now = DateTime.Now;
+        return (now.Month <= 6 && !(now.Month == 6 && now.Day > 1))
+            ? $"Spring {now.Year}"
+            : $"Fall {now.Year}";
     }
 
 
