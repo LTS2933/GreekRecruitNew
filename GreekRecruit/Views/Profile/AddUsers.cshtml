@@ -74,6 +74,7 @@
                     if (isAdmin)
                     {
                         <li><a asp-controller="Profile" asp-action="AddUsers" class="dropdown-item">Add Users</a></li>
+                        <li><a asp-controller="AdminTask" asp-action="Index" class="dropdown-item">View Tasks</a></li>
                     }
                 }
                 <li><a asp-action="Logout" class="btn btn-primary">Logout</a></li>
@@ -114,6 +115,6 @@
     </form>
 
     <div class="mt-4">
-        <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Back to PNMs</a>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">← Back to Home</a>
     </div>
 </div>

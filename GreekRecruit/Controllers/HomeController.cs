@@ -55,6 +55,19 @@ public class HomeController : Controller
         };
 
         var pnms = await pnmsQuery.ToListAsync();
+
+        List<AdminTask> taskPreview = new();
+        if (user.role == "Admin")
+        {
+            taskPreview = await _context.AdminTasks
+                .Where(t => t.organization_id == user.organization_id && !t.is_completed)
+                .OrderBy(t => t.due_date ?? t.date_created)
+                .Take(3)
+                .ToListAsync();
+        }
+
+        ViewData["TaskPreview"] = taskPreview;
+
         return View(pnms);
     }
 

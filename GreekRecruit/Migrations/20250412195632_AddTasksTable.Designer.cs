@@ -4,6 +4,7 @@ using GreekRecruit.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GreekRecruit.Migrations
 {
     [DbContext(typeof(SqlDataContext))]
-    partial class SqlDataContextModelSnapshot : ModelSnapshot
+    [Migration("20250412195632_AddTasksTable")]
+    partial class AddTasksTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,44 +24,6 @@ namespace GreekRecruit.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("GreekRecruit.Models.AdminTask", b =>
-                {
-                    b.Property<int>("task_id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("task_id"));
-
-                    b.Property<DateTime?>("date_completed")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("date_created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("due_date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("is_completed")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("organization_id")
-                        .HasColumnType("int");
-
-                    b.Property<string>("task_description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("user_id")
-                        .HasColumnType("int");
-
-                    b.HasKey("task_id");
-
-                    b.ToTable("AdminTasks");
-                });
 
             modelBuilder.Entity("GreekRecruit.Models.Comment", b =>
                 {
@@ -255,6 +220,41 @@ namespace GreekRecruit.Migrations
                     b.HasKey("vote_session_id");
 
                     b.ToTable("PNMVoteSessions");
+                });
+
+            modelBuilder.Entity("GreekRecruit.Models.Task", b =>
+                {
+                    b.Property<int>("task_id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("task_id"));
+
+                    b.Property<DateTime?>("date_completed")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("date_created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("due_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("is_completed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("task_description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("user_id")
+                        .HasColumnType("int");
+
+                    b.HasKey("task_id");
+
+                    b.ToTable("Tasks");
                 });
 
             modelBuilder.Entity("GreekRecruit.Models.User", b =>

@@ -15,6 +15,8 @@ namespace GreekRecruit.Models
         public DbSet<EventAttendance> EventsAttendance { get; set; }
 
         public DbSet<PNMVoteSession> PNMVoteSessions { get; set; }
+
+        public DbSet<AdminTask> AdminTasks { get; set; }
         public SqlDataContext(DbContextOptions<SqlDataContext> options) 
             : base(options)
         {}
