@@ -22,8 +22,6 @@ public class HomeController : Controller
     //Homepage
     [Authorize]
     [HttpGet]
-    [Authorize]
-    [HttpGet]
     public async Task<IActionResult> Index(string? semester, string? status, string? search, string? sort)
     {
         var username = User.Identity?.Name;

@@ -88,6 +88,7 @@
             </button>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
                 <li><a asp-controller="Profile" asp-action="Index" class="dropdown-item">Profile</a></li>
+                <li><a asp-controller="Dashboard" asp-action="Index" class="dropdown-item">Dashboard Insights</a></li>
                 @{
                     if (isAdmin)
                     {
@@ -288,7 +289,7 @@
             </div>
 
             <div class="col-auto">
-                <button type="submit" class="btn btn-primary">Apply Status</button>
+                <button type="submit" class="btn btn-primary">Apply</button>
             </div>
             <div class="col-auto">
                 <button type="submit" name="delete" value="true" class="btn btn-danger"

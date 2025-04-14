@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authentication;
 
 namespace GreekRecruit.Controllers
 {
-    [Authorize]
     public class AdminTaskController : Controller
     {
         private readonly SqlDataContext _context;

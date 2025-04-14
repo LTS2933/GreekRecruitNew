@@ -35,6 +35,7 @@ public class InterestFormController : Controller
     // Create new Interest Form (Admin)
     [HttpGet]
     [Authorize]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create()
     {
 
@@ -81,6 +82,7 @@ public class InterestFormController : Controller
 
     // View submissions for a specific form (Admin)
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> Submissions(int form_id)
     {
         var username = User.Identity?.Name;

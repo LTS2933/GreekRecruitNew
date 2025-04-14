@@ -1,6 +1,13 @@
 ﻿@{
-    ViewData["Title"] = "Add PNMs via CSV";
+    ViewData["Title"] = "Dashboard Insights";
+    var statusCounts = ViewData["StatusCounts"] as Dictionary<string, int>;
+    var totalPnms = (int)ViewData["TotalPNMs"];
+    var avgGpa = (double)ViewData["AvgGPA"];
+    var totalEvents = (int)ViewData["TotalEvents"];
+    var recentVotes = (ViewData["RecentVotes"] as IEnumerable<dynamic>)?.ToList() ?? new List<dynamic>();
+
 }
+
 @{
     var username = User.Identity?.Name;
     var context = Context.RequestServices.GetService(typeof(SqlDataContext)) as SqlDataContext;
@@ -12,8 +19,10 @@
     }
 }
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
 
 <nav class="navbar navbar-light bg-light p-3 d-flex justify-content-between">
     <div class="d-flex align-items-center gap-2">
@@ -40,7 +49,12 @@
                 PNMs
             </button>
             <ul class="dropdown-menu" style="white-space: nowrap; min-width: max-content;" aria-labelledby="pnmsDropdown">
+
                 <li><a class="dropdown-item" asp-controller="AddPNM" asp-action="Index">Add PNM</a></li>
+                @if (isAdmin)
+                {
+                    <li><a class="dropdown-item" asp-controller="AddPNM" asp-action="AddPNMCSV">Import PNMs from CSV</a></li>
+                }
             </ul>
         </div>
 
@@ -73,7 +87,6 @@
             </button>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
                 <li><a asp-controller="Profile" asp-action="Index" class="dropdown-item">Profile</a></li>
-                <li><a asp-controller="Dashboard" asp-action="Index" class="dropdown-item">Dashboard Insights</a></li>
                 @{
                     if (isAdmin)
                     {
@@ -102,30 +115,91 @@
     </div>
 }
 
+<div class="container my-4">
+    <h2 class="mb-4">Dashboard Insights</h2>
 
-<div class="container mt-5">
-    <h2 class="mb-4">Add PNMs from CSV</h2>
-
-    <p>Please upload a <strong>.csv</strong> file with the following column format (in this exact order):</p>
-
-    <div class="alert alert-info">
-        <code>
-            pnm_fname, pnm_lname, pnm_email, pnm_phone, pnm_gpa, pnm_major, pnm_schoolyear, pnm_instagramhandle
-        </code>
-        <br />
-        <strong>Example row:</strong><br />
-        John,Smith,johnsmith@email.com,123456789,3.9,Biology,Sophomore,john.smith12
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div class="card text-bg-primary shadow-sm">
+                <div class="card-body text-center">
+                    <h4>@totalPnms</h4>
+                    <p class="card-text mb-0">Total PNMs</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-bg-success shadow-sm">
+                <div class="card-body text-center">
+                    <h4>@avgGpa.ToString("F2")</h4>
+                    <p class="card-text mb-0">Average GPA</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-bg-warning shadow-sm">
+                <div class="card-body text-center">
+                    <h4>@totalEvents</h4>
+                    <p class="card-text mb-0">Total Events</p>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <form asp-controller="AddPNM" asp-action="ImportCSV" method="post" enctype="multipart/form-data">
-        @Html.AntiForgeryToken()
-        <div class="mb-3">
-            <label for="csvFile" class="form-label">Select CSV File</label>
-            <input type="file" name="csvFile" class="form-control" accept=".csv" required />
-        </div>
+    <hr class="my-4" />
 
-        <button type="submit" class="btn btn-success">Import PNMs</button>
-        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary ms-2">Cancel</a>
-    </form>
+    <h4>Status Breakdown</h4>
+    <ul class="list-group mb-4">
+        @foreach (var status in statusCounts.OrderByDescending(k => k.Value))
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                @status.Key
+                <span class="badge bg-secondary rounded-pill">@status.Value</span>
+            </li>
+        }
+    </ul>
 
+    <h4>Recent Voting Sessions</h4>
+    <table class="table table-bordered align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>PNM Name</th>
+                <th>Session Opened</th>
+                <th>Session Closed</th>
+                <th>Yes Votes</th>
+                <th>No Votes</th>
+                <th>Yes %</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (recentVotes.Any())
+            {
+                @foreach (var vote in recentVotes)
+                {
+                    var session = vote.Session;
+                    var pnm = vote.PNM;
+                    var totalVotes = session.yes_count + session.no_count;
+                    var yesPercent = totalVotes > 0 ? ((double)session.yes_count / totalVotes * 100).ToString("F1") + "%" : "—";
+                    <tr>
+                        <td>@pnm.pnm_fname @pnm.pnm_lname</td>
+                        <td>@session.session_open_dt.ToString("g")</td>
+                        <td>@(session.session_close_dt?.ToString("g") ?? "Open")</td>
+                        <td>@session.yes_count</td>
+                        <td>@session.no_count</td>
+                        <td>@yesPercent</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" class="text-center">No recent voting sessions found.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+
+    <div class="text-end mt-4">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">← Back to Home</a>
+    </div>
 </div>

@@ -18,15 +18,27 @@ namespace GreekRecruit.Controllers
         [Authorize]
         
         //Returns the view to Add a PNM
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            var username = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
+
+            if (user == null) return Unauthorized();
+
             return View();
         }
         [HttpGet]
         [Authorize]
+        [ValidateAntiForgeryToken]
         //Returns the view for batch adding PNMs via a CSV file
-        public IActionResult AddPNMCSV()
+        public async Task<IActionResult> AddPNMCSV()
         {
+            var username = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
+
+            if (user == null) return Unauthorized();
+            if (user.role != "Admin") return Forbid();
+
             return View("AddPNMCSV");
         }
 
