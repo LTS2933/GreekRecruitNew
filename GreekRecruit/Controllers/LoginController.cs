@@ -30,36 +30,53 @@ namespace GreekRecruit.Controllers
 
         //Submit user credentials to try to log in
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> SubmitDataAsync(User model)
         {
-            var email = model.email;
-            //bool emailExists = _context.Users.Any(u => u.email == email);
-            //if (!emailExists)
-            //{
-            //    TempData["FlashMessage"] = "Email does not exist within this organization's users!";
-            //    return View("Login");
-            //}
-
             var uname = model.username;
-            //bool usernameExists = _context.Users.Any(u => u.username == uname);
-            //if (!usernameExists)
-            //{
-            //    TempData["FlashMessage"] = "Username does not exist within this organization's users!";
-            //    return View("Login");
-            //}
-            var pword = model.password;
-            //Will need to hash eventually
-           // user.password = BCrypt.Net.BCrypt.HashPassword(plainTextPassword);
-            bool correctUser = await _context.Users.AnyAsync(u => u.username == uname && u.password == pword && u.email == email);
-            if (!correctUser) {
+            var email = model.email;
+            var enteredPassword = model.password;
+
+            // Try to find a user by username and email
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.username == uname && u.email == email);
+            if (user == null)
+            {
                 TempData["ErrorMessage"] = "Invalid credentials!";
                 return View("Login");
             }
 
-            var claims = new List<Claim>
+            bool isPasswordValid;
+
+            if (user.is_hashed_passowrd == "Y") // Note: consider renaming to is_hashed_password in the DB later
             {
-                new Claim(ClaimTypes.Name, uname)
-            };
+                // Password is hashed
+                isPasswordValid = BCrypt.Net.BCrypt.Verify(enteredPassword, user.password);
+            }
+            else
+            {
+                // Password is still plaintext (legacy support)
+                isPasswordValid = (user.password == enteredPassword);
+
+                if (isPasswordValid)
+                {
+                    // Upgrade this user to hashed password
+                    user.password = BCrypt.Net.BCrypt.HashPassword(enteredPassword);
+                    user.is_hashed_passowrd = "Y";
+                    await _context.SaveChangesAsync();
+                }
+            }
+
+            if (!isPasswordValid)
+            {
+                TempData["ErrorMessage"] = "Invalid credentials!";
+                return View("Login");
+            }
+
+            // Sign in
+            var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Name, uname)
+    };
 
             var identity = new ClaimsIdentity(claims, "MyCookieAuth");
             var principal = new ClaimsPrincipal(identity);
@@ -67,8 +84,7 @@ namespace GreekRecruit.Controllers
             await HttpContext.SignInAsync("MyCookieAuth", principal);
 
             return RedirectToAction("Index", "Home");
-
-
         }
+
     }
 }

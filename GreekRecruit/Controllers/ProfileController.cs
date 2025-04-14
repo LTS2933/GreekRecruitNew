@@ -95,10 +95,12 @@ namespace GreekRecruit.Controllers
                         user.full_name = full_name;
                         user.role = "User";
                         user.password = GenerateRandomPassword();
+                        
                         //Will want to implement a password hashing algorithm here
-                        //var hasher = new PasswordHasher<User>();
-                        //string hashedPassword = hasher.HashPassword(user, user.password);
-                        //user.password = hashedPassword;
+                        var hasher = new PasswordHasher<User>();
+                        string hashedPassword = hasher.HashPassword(user, user.password);
+                        user.password = hashedPassword;
+                        user.is_hashed_passowrd = "Y";
 
                         var current_user_username = User.Identity?.Name;
                         var current_user = await _context.Users.FirstOrDefaultAsync(u => u.username == current_user_username);
@@ -116,7 +118,7 @@ namespace GreekRecruit.Controllers
 
                         mail.Subject = "Join GreekRecruit!";
                         mail.Body = $"You've been invited to join GreekRecruit by your admin, {current_user.full_name}.\nYou can now log in using this email.\nUsername: {user.username}\nPassword: {user.password}" +
-                        "\nIf you would like to reset your password, you can do so by clicking the Settings button in your profile dropdown.";
+                        "\nFor security reasons, please reset your password. You can do so by clicking the Settings button in your profile dropdown.";
 
                         var smtpClient = new SmtpClient(smtpServer)
                         {
@@ -174,6 +176,34 @@ namespace GreekRecruit.Controllers
 
             return new string(passwordChars.OrderBy(c => Guid.NewGuid()).ToArray());
         }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdatePassword(string newPassword)
+        {
+            var username = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
+            if (user == null) return Unauthorized();
+
+            // Hash the new password
+            var hasher = new PasswordHasher<User>();
+            user.password = hasher.HashPassword(user, newPassword);
+            user.is_hashed_passowrd = "Y"; // You can add this bool column to track who has upgraded
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Password updated successfully.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error updating password: {ex.Message}";
+            }
+
+            return RedirectToAction("Index");
+        }
+
 
 
         //Logout

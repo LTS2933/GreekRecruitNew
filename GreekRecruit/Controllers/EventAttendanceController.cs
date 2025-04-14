@@ -32,7 +32,7 @@ namespace GreekRecruit.Controllers
         //Handles the form submission for a user to say they attended an event
         [HttpPost]
         [AllowAnonymous]
-        
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> SubmitAttendance(EventAttendance attendance)
         {
             if (!ModelState.IsValid)

@@ -32,10 +32,9 @@ public class InterestFormController : Controller
         return View(forms);
     }
 
-    // Create new Interest Form (Admin)
+    // The view for creating a new Interest Form (Admin)
     [HttpGet]
     [Authorize]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create()
     {
 

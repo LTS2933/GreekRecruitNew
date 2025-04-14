@@ -17,6 +17,8 @@ namespace GreekRecruit.Models
         [NotMapped]
         public String? confirmPassword { get; set; }
 
+        public string? is_hashed_passowrd { get; set; }
+
         public string full_name { get; set; }
         public String? email { get; set; }
 

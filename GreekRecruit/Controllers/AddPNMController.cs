@@ -29,7 +29,6 @@ namespace GreekRecruit.Controllers
         }
         [HttpGet]
         [Authorize]
-        [ValidateAntiForgeryToken]
         //Returns the view for batch adding PNMs via a CSV file
         public async Task<IActionResult> AddPNMCSV()
         {

@@ -30,6 +30,7 @@
     <p class="text-muted text-center">@Model.event_datetime.ToString("MMMM dd, yyyy • h:mm tt")</p>
 
     <form asp-controller="EventAttendance" asp-action="SubmitAttendance" method="post" class="mx-auto" style="max-width: 500px;">
+        @Html.AntiForgeryToken()
         <input type="hidden" name="event_id" value="@Model.event_id" />
         <input type="hidden" name="organization_id" value="@Model.organization_id" />
 
