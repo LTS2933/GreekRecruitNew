@@ -28,7 +28,7 @@ namespace GreekRecruit.Models
 
         public DateTime pnm_dateadded { get; set; } = DateTime.Now;
 
-
+        public string? pnm_profilepictureurl { get; set; }
 
     }
 }

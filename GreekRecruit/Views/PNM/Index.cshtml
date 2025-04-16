@@ -248,16 +248,15 @@
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="pnm_id" value="@pnm.pnm_id" />
 
-                        @if (pnm.pnm_profilepicture != null && pnm.pnm_profilepicture.Length > 0)
+                        @if (ViewData["S3ProfilePictureUrl"] != null)
                         {
-                            var base64Image = "data:image/jpeg;base64," + Convert.ToBase64String(pnm.pnm_profilepicture);
-                            <img src="@base64Image" alt="Profile Picture" style="max-height:200px;" class="mb-3 rounded" />
+                            <img src="@ViewData["S3ProfilePictureUrl"]" alt="Profile Picture" style="max-height:200px;" class="mb-3 rounded" />
                         }
                         else
                         {
-                            <img src="/images/default_avatar.jpg" style="width:120px;height:120px;"
-                                 alt="No Profile" class="mb-3 rounded" />
+                            <img src="/images/default_avatar.jpg" style="width:120px;height:120px;" alt="No Profile" class="mb-3 rounded" />
                         }
+
 
                         @if (isAdmin)
                         {

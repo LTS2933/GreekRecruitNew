@@ -2,16 +2,20 @@
 using GreekRecruit.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using GreekRecruit.Services;
+
 
 namespace GreekRecruit.Controllers;
 
 public class InterestFormController : Controller
 {
     private readonly SqlDataContext _context;
+    private readonly S3Service _s3Service;
 
-    public InterestFormController(SqlDataContext context)
+    public InterestFormController(SqlDataContext context, S3Service s3Service)
     {
         _context = context;
+        _s3Service = s3Service;
     }
 
     // View all Interest Forms (Admin)
@@ -135,20 +139,21 @@ public class InterestFormController : Controller
             return View(submission);
         }
 
+        string? fileName = null;
         if (pnm_profilepicture != null && pnm_profilepicture.Length > 0)
         {
-            using var ms = new MemoryStream();
-            await pnm_profilepicture.CopyToAsync(ms);
-            submission.pnm_profilepicture = ms.ToArray();
+            var extension = Path.GetExtension(pnm_profilepicture.FileName);
+            fileName = $"pnm_{Guid.NewGuid()}{extension}";
+            await _s3Service.UploadFileAsync(pnm_profilepicture.OpenReadStream(), fileName, pnm_profilepicture.ContentType);
         }
 
         submission.form_id = form_id;
         submission.organization_id = form.organization_id;
         submission.date_submitted = DateTime.Now;
+        submission.pnm_profilepictureurl = fileName;
 
         _context.InterestFormSubmissions.Add(submission);
 
-        // Add to PNMs table
         var pnm = new PNM
         {
             organization_id = form.organization_id,
@@ -159,7 +164,7 @@ public class InterestFormController : Controller
             pnm_schoolyear = submission.pnm_schoolyear,
             pnm_major = submission.pnm_major,
             pnm_gpa = submission.pnm_gpa,
-            pnm_profilepicture = submission.pnm_profilepicture,
+            pnm_profilepictureurl = fileName,
             pnm_instagramhandle = submission.pnm_instagramhandle
         };
 
@@ -168,6 +173,7 @@ public class InterestFormController : Controller
 
         return RedirectToAction("ThankYou");
     }
+
 
 
     [AllowAnonymous]

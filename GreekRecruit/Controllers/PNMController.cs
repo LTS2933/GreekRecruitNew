@@ -8,18 +8,20 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
+using GreekRecruit.Services;
 
 namespace GreekRecruit.Controllers
 {
     [Authorize(AuthenticationSchemes = "MyCookieAuth")]
     public class PNMController : Controller
     {
-
         private readonly SqlDataContext _context;
+        private readonly S3Service _s3Service;
 
-        public PNMController(SqlDataContext context)
+        public PNMController(SqlDataContext context, S3Service s3Service) // add S3Service here
         {
             _context = context;
+            _s3Service = s3Service;
         }
 
         //Returns the View for the given PNM we are on
@@ -47,6 +49,12 @@ namespace GreekRecruit.Controllers
                 .Where(s => s.pnm_id == id)
                 .OrderByDescending(s => s.session_open_dt)
                 .ToListAsync();
+
+            if (!string.IsNullOrEmpty(pnm.pnm_profilepictureurl))
+            {
+                var s3Url = _s3Service.GetFileUrl(pnm.pnm_profilepictureurl);
+                ViewData["S3ProfilePictureUrl"] = s3Url;
+            }
 
 
             return View((pnm, comments, sessions));
@@ -215,13 +223,18 @@ namespace GreekRecruit.Controllers
 
             try
             {
-                using (var memoryStream = new MemoryStream())
-                {
-                    await newProfilePicture.CopyToAsync(memoryStream);
-                    pnm.pnm_profilepicture = memoryStream.ToArray();
-                }
+                // Create a unique filename
+                var fileExtension = Path.GetExtension(newProfilePicture.FileName);
+                var fileName = $"pnm_{pnm_id}_{Guid.NewGuid()}{fileExtension}";
+
+                // Upload file to S3
+                await _s3Service.UploadFileAsync(newProfilePicture.OpenReadStream(), fileName, newProfilePicture.ContentType);
+
+                // Optionally, store the filename (or URL) in your database
+                pnm.pnm_profilepictureurl = fileName; // Assuming you create a URL field instead of byte array
 
                 await _context.SaveChangesAsync();
+
                 TempData["SuccessMessage"] = "Profile picture updated successfully.";
             }
             catch (Exception ex)
@@ -232,7 +245,6 @@ namespace GreekRecruit.Controllers
 
             return RedirectToAction("Index", new { id = pnm_id });
         }
-
         // 6) Open a new voting session (Admin only)
         [HttpPost]
         [Authorize]

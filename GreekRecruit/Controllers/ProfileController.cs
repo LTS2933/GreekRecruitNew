@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using System.Text.RegularExpressions;
 
 
 namespace GreekRecruit.Controllers
@@ -87,7 +88,7 @@ namespace GreekRecruit.Controllers
 
 
                     int ampersand_index = email.IndexOf("@");
-                    if (!MailAddress.TryCreate(email, out _))
+                    if (MailAddress.TryCreate(email, out _))
                     {
                         User user = new User();
                         user.username = email.Substring(0, ampersand_index);
@@ -97,10 +98,10 @@ namespace GreekRecruit.Controllers
                         user.password = GenerateRandomPassword();
                         
                         //Will want to implement a password hashing algorithm here
-                        var hasher = new PasswordHasher<User>();
-                        string hashedPassword = hasher.HashPassword(user, user.password);
-                        user.password = hashedPassword;
-                        user.is_hashed_passowrd = "Y";
+                        //var hasher = new PasswordHasher<User>();
+                        //string hashedPassword = hasher.HashPassword(user, user.password);
+                        //user.password = hashedPassword;
+                        user.is_hashed_passowrd = "N";
 
                         var current_user_username = User.Identity?.Name;
                         var current_user = await _context.Users.FirstOrDefaultAsync(u => u.username == current_user_username);
@@ -186,9 +187,23 @@ namespace GreekRecruit.Controllers
             var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
             if (user == null) return Unauthorized();
 
+            if (newPassword.Length < 7 || newPassword.Length > 20)
+            {
+                TempData["ErrorMessage"] = "Password must be between 8 and 20 characters and contain at least one special character!";
+                return RedirectToAction("Index");
+            }
+
+            String pattern = @"^(?=.*[^a-zA-Z0-9]).+$";
+            Regex regex = new Regex(pattern);
+
+            if (!regex.IsMatch(newPassword))
+            {
+                TempData["ErrorMessage"] = "Password must be between 8 and 20 characters and contain at least one special character!";
+                return RedirectToAction("Index");
+            }
+
             // Hash the new password
-            var hasher = new PasswordHasher<User>();
-            user.password = hasher.HashPassword(user, newPassword);
+            user.password = BCrypt.Net.BCrypt.HashPassword(newPassword);
             user.is_hashed_passowrd = "Y"; // You can add this bool column to track who has upgraded
 
             try

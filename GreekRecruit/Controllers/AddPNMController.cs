@@ -3,17 +3,21 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using GreekRecruit.Services;
 
 namespace GreekRecruit.Controllers
 {
     public class AddPNMController : Controller
     {
         private readonly SqlDataContext _context;
+        private readonly S3Service _s3Service;
 
-        public AddPNMController(SqlDataContext context)
+        public AddPNMController(SqlDataContext context, S3Service s3Service)
         {
             _context = context;
+            _s3Service = s3Service;
         }
+
         [HttpGet]
         [Authorize]
         
@@ -66,12 +70,14 @@ namespace GreekRecruit.Controllers
             {
                 if (uploadedProfilePicture != null && uploadedProfilePicture.Length > 0)
                 {
-                    using (var ms = new MemoryStream())
-                    {
-                        await uploadedProfilePicture.CopyToAsync(ms);
-                        pnm.pnm_profilepicture = ms.ToArray();
-                    }
+                    var fileExtension = Path.GetExtension(uploadedProfilePicture.FileName);
+                    var fileName = $"pnm_{Guid.NewGuid()}{fileExtension}";
+
+                    await _s3Service.UploadFileAsync(uploadedProfilePicture.OpenReadStream(), fileName, uploadedProfilePicture.ContentType);
+
+                    pnm.pnm_profilepictureurl = fileName;
                 }
+
 
                 pnm.organization_id = user.organization_id;
                 pnm.pnm_semester = GetCurrentSemester();

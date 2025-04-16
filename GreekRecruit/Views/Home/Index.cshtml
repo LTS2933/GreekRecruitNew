@@ -246,10 +246,9 @@
                     <tr>
                         <td><input type="checkbox" name="selectedPnms" value="@pnm.pnm_id" /></td>
                         <td>
-                            @if (pnm.pnm_profilepicture?.Length > 0)
+                            @if (!string.IsNullOrEmpty(pnm.pnm_profilepictureurl))
                             {
-                                var base64 = Convert.ToBase64String(pnm.pnm_profilepicture);
-                                <img src="data:image/jpeg;base64,@base64" width="60" class="me-2 rounded" />
+                                <img src="@pnm.pnm_profilepictureurl" width="60" class="me-2 rounded" />
                             }
                             else
                             {
@@ -317,10 +316,9 @@ else
             {
                 <tr>
                     <td>
-                        @if (pnm.pnm_profilepicture?.Length > 0)
+                        @if (!string.IsNullOrEmpty(pnm.pnm_profilepictureurl))
                         {
-                            var base64 = Convert.ToBase64String(pnm.pnm_profilepicture);
-                            <img src="data:image/jpeg;base64,@base64" width="60" class="me-2 rounded" />
+                            <img src="@pnm.pnm_profilepictureurl" width="60" class="me-2 rounded" />
                         }
                         else
                         {

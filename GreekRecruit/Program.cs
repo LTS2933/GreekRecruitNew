@@ -1,6 +1,11 @@
 using GreekRecruit.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
+using Amazon;
+using Amazon.S3;
+using Amazon.S3.Transfer;
+using GreekRecruit.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +26,17 @@ builder.Services.AddAuthentication("MyCookieAuth")
     });
 
 builder.Services.AddAuthorization();
+
+// AWS S3 Setup
+var awsAccessKey = Environment.GetEnvironmentVariable("AWS_ACCESSKEY");
+var awsSecretKey = Environment.GetEnvironmentVariable("AWS_SECRETKEY");
+var awsRegion = RegionEndpoint.USEast2; // Change to your bucket's region if needed
+
+builder.Services.AddSingleton<IAmazonS3>(_ =>
+    new AmazonS3Client(awsAccessKey, awsSecretKey, awsRegion));
+
+builder.Services.AddSingleton<S3Service>();
+
 
 var app = builder.Build();
 

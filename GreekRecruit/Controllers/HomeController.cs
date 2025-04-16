@@ -6,6 +6,7 @@ using System.Xml.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
+using GreekRecruit.Services;
 
 namespace GreekRecruit.Controllers;
 
@@ -13,10 +14,12 @@ public class HomeController : Controller
 {
 
     private readonly SqlDataContext _context;
+    private readonly S3Service _s3Service;
 
-    public HomeController (SqlDataContext context)
+    public HomeController(SqlDataContext context, S3Service s3Service)
     {
         _context = context;
+        _s3Service = s3Service;
     }
 
     //Homepage
@@ -58,6 +61,14 @@ public class HomeController : Controller
         };
 
         var pnms = await pnmsQuery.ToListAsync();
+
+        foreach (var pnm in pnms)
+        {
+            if (!string.IsNullOrEmpty(pnm.pnm_profilepictureurl))
+            {
+                pnm.pnm_profilepictureurl = _s3Service.GetFileUrl(pnm.pnm_profilepictureurl);
+            }
+        }
 
         List<AdminTask> taskPreview = new();
         if (user.role == "Admin")
