@@ -109,11 +109,11 @@ public class InterviewController : Controller
                   })
             .ToListAsync();
 
-        Console.WriteLine("Fetched interviews:");
-        foreach (var i in interviews)
-        {
-            Console.WriteLine($"{i.pnm_fname} {i.pnm_lname} - {i.interview_datetime}");
-        }
+        //Console.WriteLine("Fetched interviews:");
+        //foreach (var i in interviews)
+        //{
+        //    Console.WriteLine($"{i.pnm_fname} {i.pnm_lname} - {i.interview_datetime}");
+        //}
 
         var events = interviews.Select(i => new
         {
