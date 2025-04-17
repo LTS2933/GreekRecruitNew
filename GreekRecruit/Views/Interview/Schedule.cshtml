@@ -1,0 +1,56 @@
+﻿@model GreekRecruit.Models.Interview
+@{
+    ViewData["Title"] = "Schedule Interview";
+    var pnms = ViewData["PNMs"] as List<GreekRecruit.Models.PNM>;
+}
+
+<link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<div class="container mt-5">
+    <h2 class="mb-4">Schedule a New Interview</h2>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <form asp-action="Schedule" method="post">
+        <div class="mb-3">
+            <label for="pnm_id" class="form-label">Select PNM</label>
+            <select class="form-select" id="pnm_id" name="pnm_id" required>
+                <option value="">-- Select PNM --</option>
+                @foreach (var pnm in pnms)
+                {
+                    <option value="@pnm.pnm_id">@pnm.pnm_fname @pnm.pnm_lname</option>
+                }
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="interview_datetime" class="form-label">Interview Date & Time</label>
+            <input type="text" class="form-control" id="interview_datetime" name="interview_datetime" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="location" class="form-label">Location</label>
+            <input type="text" class="form-control" id="location" name="location" />
+        </div>
+
+        <div class="mb-3">
+            <label for="notes" class="form-label">Notes</label>
+            <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Schedule Interview</button>
+        <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+    </form>
+</div>
+
+<script>
+    flatpickr("#interview_datetime", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i",
+        minDate: "today"
+    });
+</script>

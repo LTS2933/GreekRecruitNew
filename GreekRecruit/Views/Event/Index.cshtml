@@ -44,10 +44,11 @@
                 Events
             </button>
             <ul class="dropdown-menu" aria-labelledby="eventsDropdown">
-            @if (isAdmin)
-            {
-                <li><a class="dropdown-item" asp-controller="AddEvent" asp-action="Index">Add Event</a></li>
-            }
+                @if (isAdmin)
+                {
+                    <li><a class="dropdown-item" asp-controller="AddEvent" asp-action="Index">Add Event</a></li>
+                }
+                <li><a class="dropdown-item" asp-controller="Event" asp-action="Index">View Events</a></li>
             </ul>
         </div>
 
@@ -56,7 +57,7 @@
                 PNMs
             </button>
             <ul class="dropdown-menu" style="white-space: nowrap; min-width: max-content;" aria-labelledby="pnmsDropdown">
-               
+
                 <li><a class="dropdown-item" asp-controller="AddPNM" asp-action="Index">Add PNM</a></li>
                 @if (isAdmin)
                 {

@@ -57,6 +57,10 @@
                 Interest Forms
             </button>
             <ul class="dropdown-menu" aria-labelledby="formsDropdown">
+                @if (isAdmin)
+                {
+                    <li><a class="dropdown-item" asp-controller="InterestForm" asp-action="Create">Add Interest Form</a></li>
+                }
                 <li><a class="dropdown-item" asp-controller="InterestForm" asp-action="Index">View Forms/Submissions</a></li>
             </ul>
         </div>

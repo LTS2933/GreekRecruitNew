@@ -50,7 +50,7 @@
                 PNMs
             </button>
             <ul class="dropdown-menu" style="white-space: nowrap; min-width: max-content;" aria-labelledby="pnmsDropdown">
-               
+
                 <li><a class="dropdown-item" asp-controller="AddPNM" asp-action="Index">Add PNM</a></li>
                 @if (isAdmin)
                 {
@@ -69,6 +69,15 @@
                     <li><a class="dropdown-item" asp-controller="InterestForm" asp-action="Create">Add Interest Form</a></li>
                 }
                 <li><a class="dropdown-item" asp-controller="InterestForm" asp-action="Index">View Forms/Submissions</a></li>
+            </ul>
+        </div>
+
+        <div class="dropdown">
+            <button class="btn btn-danger dropdown-toggle" type="button" id="interviewsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                Interviews
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="interviewsDropdown">
+                <li><a class="dropdown-item" asp-controller="Interview" asp-action="Index">View Interview Schedule</a></li>
             </ul>
         </div>
 

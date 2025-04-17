@@ -52,7 +52,31 @@ public class DashboardController : Controller
             })
             .ToListAsync();
 
+        var topAttendees = await _context.EventsAttendance
+    .Where(e => e.organization_id == orgId)
+    .GroupBy(e => new { e.pnm_fname, e.pnm_lname })
+    .Select(g => new {
+        pnm_fname = g.Key.pnm_fname,
+        pnm_lname = g.Key.pnm_lname,
+        EventCount = g.Count()
+    })
+    .OrderByDescending(g => g.EventCount)
+    .Take(5)
+    .ToListAsync();
 
+        var topCommenters = await _context.Comments
+            .Where(c => _context.PNMs.Any(p => p.pnm_id == c.pnm_id && p.organization_id == orgId))
+            .GroupBy(c => c.comment_author_name)
+            .Select(g => new {
+                Name = g.Key,
+                CommentCount = g.Count()
+            })
+            .OrderByDescending(g => g.CommentCount)
+            .Take(5)
+            .ToListAsync();
+
+        ViewData["TopAttendees"] = topAttendees;
+        ViewData["TopCommenters"] = topCommenters;
         ViewData["StatusCounts"] = statusDict;
         ViewData["TotalPNMs"] = totalPnms;
         ViewData["AvgGPA"] = averageGpa;

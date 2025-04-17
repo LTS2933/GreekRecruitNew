@@ -23,6 +23,8 @@ namespace GreekRecruit.Models
         public DbSet<InterestForm> InterestForms { get; set; }
 
         public DbSet<InterestFormSubmission> InterestFormSubmissions { get; set; }
+
+        public DbSet<Interview> Interviews { get; set; }
         public SqlDataContext(DbContextOptions<SqlDataContext> options) 
             : base(options)
         {}
