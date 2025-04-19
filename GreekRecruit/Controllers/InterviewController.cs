@@ -2,6 +2,7 @@
 using GreekRecruit.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication;
 
 namespace GreekRecruit.Controllers;
 
@@ -14,6 +15,7 @@ public class InterviewController : Controller
         _context = context;
     }
 
+    //Returns the view for the interview schedule
     [Authorize]
     [HttpGet]
     public async Task<IActionResult> Index()
@@ -21,7 +23,7 @@ public class InterviewController : Controller
         var username = User.Identity?.Name;
         var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
         if (user == null) return Unauthorized();
-        if (user.role != "Admin") return Forbid();
+       
 
         //var interviews = await _context.Interviews
         //    .Where(i => i.organization_id == user.organization_id)
@@ -32,6 +34,7 @@ public class InterviewController : Controller
         return View();
     }
 
+    //Returns the view for scheduling a new interview (admin only)
     [Authorize]
     [HttpGet]
     public async Task<IActionResult> Schedule()
@@ -39,6 +42,7 @@ public class InterviewController : Controller
         var username = User.Identity?.Name;
         var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
         if (user == null) return Unauthorized();
+        if (user.role != "Admin") return Forbid();
 
         var pnms = await _context.PNMs
             .Where(p => p.organization_id == user.organization_id)
@@ -48,6 +52,7 @@ public class InterviewController : Controller
         return View();
     }
 
+    //HTTP POST method that submits new interview data
     [Authorize]
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -56,6 +61,7 @@ public class InterviewController : Controller
         var username = User.Identity?.Name;
         var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
         if (user == null) return Unauthorized();
+        if (user.role != "Admin") return Forbid();
 
         interview.organization_id = user.organization_id;
         interview.interviewer_user_id = user.user_id;
@@ -73,6 +79,7 @@ public class InterviewController : Controller
         return RedirectToAction("Index");
     }
 
+    //Method for for canceling an interview (admin only)
     [Authorize]
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -81,6 +88,11 @@ public class InterviewController : Controller
         var interview = await _context.Interviews.FindAsync(interview_id);
         if (interview == null) return NotFound();
 
+        var username = User.Identity?.Name;
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
+        if (user == null) return Unauthorized();
+        if (user.role != "Admin") return Forbid();
+
         _context.Interviews.Remove(interview);
         await _context.SaveChangesAsync();
 
@@ -88,6 +100,7 @@ public class InterviewController : Controller
         return RedirectToAction("Index");
     }
 
+    //Returns a JSON object of all interviews for the logged-in user, which the view uses to populate calendar
     [HttpGet]
     public async Task<IActionResult> GetInterviews()
     {
@@ -127,5 +140,11 @@ public class InterviewController : Controller
         return Json(events);
     }
 
-
+    //Logout
+    [Authorize]
+    public async Task<IActionResult> Logout()
+    {
+        await HttpContext.SignOutAsync("MyCookieAuth");
+        return RedirectToAction("Login", "Login");
+    }
 }

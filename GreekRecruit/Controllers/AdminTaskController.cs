@@ -92,6 +92,7 @@ namespace GreekRecruit.Controllers
             return RedirectToAction("Index");
         }
 
+        //Delete task
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]

@@ -421,6 +421,24 @@ namespace GreekRecruit.Controllers
             return View();
         }
 
+        //Page that allows users to type out a mass message and send it to PNMs of their choosing
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> MassMessage()
+        {
+            var username = User.Identity?.Name;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
+            if (user == null) return Unauthorized();
+            if (user.role != "Admin") return Forbid();
+
+            var pnms = await _context.PNMs
+                .Where(p => p.organization_id == user.organization_id && !string.IsNullOrEmpty(p.pnm_phone))
+                .OrderBy(p => p.pnm_lname)
+                .ToListAsync();
+
+            return View(pnms);
+        }
+
 
         //Logout
         [Authorize]

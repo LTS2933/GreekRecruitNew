@@ -15,6 +15,7 @@ public class DashboardController : Controller
         _context = context;
     }
 
+    //Shows the view for the stats and insights page
     [HttpGet]
     [Authorize]
     public async Task<IActionResult> Index()

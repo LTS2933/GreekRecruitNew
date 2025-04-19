@@ -65,6 +65,15 @@
             </ul>
         </div>
 
+        <div class="dropdown">
+            <button class="btn btn-danger dropdown-toggle" type="button" id="interviewsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                Interviews
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="interviewsDropdown">
+                <li><a class="dropdown-item" asp-controller="Interview" asp-action="Index">View Interview Schedule</a></li>
+            </ul>
+        </div>
+
     </div>
 
 
@@ -94,7 +103,6 @@
         </div>
     </div>
 </nav>
-
 
 @if (TempData["SuccessMessage"] != null)
 {
